@@ -1,4 +1,5 @@
 use rand::Rng;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 enum Species {
@@ -26,13 +27,128 @@ fn get_random() -> f64 {
     rng.gen_range(-1.0..1.0)
 }
 
-fn main() {
-    let population = vec![
-        Agent { x: 10.0, y: 5.0, energy: 20.0, species: Species::Prey },
-        Agent { x: 3.0, y: 8.0, energy: 15.0, species: Species::Predator },
-    ];
+fn distance(a: &Agent, b: &Agent) -> f64 {
+    let dx = a.x - b.x;
+    let dy = a.y - b.y;
+    (dx * dx + dy * dy).sqrt()
+}
 
-    for agent in &population {
-        println!("{:?}", agent);
+fn spawn_initial_population() -> Vec<Agent> {
+    let mut population = Vec::new();
+    for _ in 0..15 {
+        population.push(Agent { x: get_random() * 10.0, y: get_random() * 10.0, energy: 20.0, species: Species::Prey });
+    }
+    for _ in 0..4 {
+        population.push(Agent { x: get_random() * 10.0, y: get_random() * 10.0, energy: 20.0, species: Species::Predator });
+    }
+    population
+}
+
+fn move_agents(population: &mut Vec<Agent>) {
+    for agent in population.iter_mut() {
+        agent.move_randomly();
+    }
+}
+
+fn handle_reproduction(population: &mut Vec<Agent>, probability: f64) {
+    let mut newborns = Vec::new();
+    for agent in population.iter() {
+        if let Species::Prey = agent.species {
+            let mut rng = rand::thread_rng();
+            if rng.gen_bool(probability) {
+                newborns.push(Agent { x: agent.x, y: agent.y, energy: 20.0, species: Species::Prey });
+            }
+        }
+    }
+    population.append(&mut newborns);
+}
+
+fn handle_predation(population: &mut Vec<Agent>, capture_radius: f64, energy_gain: f64) -> usize {
+    let mut captures: Vec<(usize, usize)> = Vec::new();
+
+    for (i, predator) in population.iter().enumerate() {
+        if let Species::Predator = predator.species {
+            let mut nearest: Option<usize> = None;
+            let mut nearest_dist = capture_radius;
+            for (j, prey) in population.iter().enumerate() {
+                if let Species::Prey = prey.species {
+                    let d = distance(predator, prey);
+                    if d < nearest_dist {
+                        nearest = Some(j);
+                        nearest_dist = d;
+                    }
+                }
+            }
+            if let Some(prey_index) = nearest {
+                captures.push((i, prey_index));
+            }
+        }
+    }
+
+    for (predator_index, _) in &captures {
+        population[*predator_index].energy += energy_gain;
+    }
+
+    let eaten: HashSet<usize> = captures.iter().map(|(_, prey_index)| *prey_index).collect();
+    let mut i = 0;
+    population.retain(|_| {
+        let keep = !eaten.contains(&i);
+        i += 1;
+        keep
+    });
+
+    captures.len()
+}
+
+fn handle_predator_energy(population: &mut Vec<Agent>, energy_loss: f64) {
+    for agent in population.iter_mut() {
+        if let Species::Predator = agent.species {
+            agent.energy -= energy_loss;
+        }
+    }
+}
+
+fn handle_predator_reproduction(population: &mut Vec<Agent>, threshold: f64) {
+    let mut newborns = Vec::new();
+    for agent in population.iter_mut() {
+        if let Species::Predator = agent.species {
+            if agent.energy > threshold {
+                agent.energy /= 2.0;
+                newborns.push(Agent { x: agent.x, y: agent.y, energy: agent.energy, species: Species::Predator });
+            }
+        }
+    }
+    population.append(&mut newborns);
+}
+
+fn remove_dead_predators(population: &mut Vec<Agent>) {
+    population.retain(|agent| {
+        if let Species::Predator = agent.species {
+            agent.energy > 0.0
+        } else {
+            true
+        }
+    });
+}
+
+fn count_species(population: &Vec<Agent>) -> (usize, usize) {
+    let prey = population.iter().filter(|a| matches!(a.species, Species::Prey)).count();
+    let predators = population.iter().filter(|a| matches!(a.species, Species::Predator)).count();
+    (prey, predators)
+}
+
+fn main() {
+    let mut population = spawn_initial_population();
+
+    for tick in 0..50 {
+        move_agents(&mut population);
+        handle_reproduction(&mut population, 0.1);
+        let captures = handle_predation(&mut population, 0.3, 10.0);
+        handle_predator_energy(&mut population, 1.0);
+        handle_predator_reproduction(&mut population, 30.0);
+        remove_dead_predators(&mut population);
+
+        let (prey, predators) = count_species(&population);
+        println!("--- Tick {} : {} proies, {} prédateurs ({} captures) ---", tick, prey, predators, captures);
     }
 }

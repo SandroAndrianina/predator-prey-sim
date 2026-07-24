@@ -5,8 +5,8 @@
 - [OK] Ajouter un crate externe pour générer des nombres aléatoires (`rand`) — premier contact avec `Cargo.toml` et les dépendances
 
 **2. Faire vivre toute la population**
-- [ ] Boucler sur `&mut population` pour faire bouger tout le monde à chaque tick
-- [ ] Ajouter une boucle "tick" globale (`for tick in 0..N { ... }`) qui appelle la mise à jour de chaque agent
+- [OK] Boucler sur `&mut population` pour faire bouger tout le monde à chaque tick
+- [OK] Ajouter une boucle "tick" globale (`for tick in 0..N { ... }`) qui appelle la mise à jour de chaque agent
 
 **3. Reproduction des proies**
 - [ ] À chaque tick, chaque proie a une petite probabilité de créer un clone à proximité
@@ -21,5 +21,4 @@
 - [ ] Chaque prédateur perd de l'énergie à chaque tick
 - [ ] Reproduction si énergie > seuil, mort (suppression) si énergie ≤ 0
 
-**6. Boucle complète + affichage texte**
-- [ ] Faire tourner N ticks et afficher le nombre de proies/prédateurs à chaque tick dans le terminal (avant même de penser au rendu graphique) — ça te permettra de voir si les chiffres oscillent correctement, sans distraction visuelle
+?
