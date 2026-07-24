@@ -1,4 +1,5 @@
-use rand::Rng;
+use macroquad::prelude::*;
+use ::rand::Rng;
 use std::collections::HashSet;
 
 #[derive(Debug)]
@@ -23,7 +24,7 @@ impl Agent{
 }
 
 fn get_random() -> f64 {
-    let mut rng = rand::thread_rng();
+    let mut rng = ::rand::thread_rng();
     rng.gen_range(-1.0..1.0)
 }
 
@@ -54,7 +55,7 @@ fn handle_reproduction(population: &mut Vec<Agent>, probability: f64) {
     let mut newborns = Vec::new();
     for agent in population.iter() {
         if let Species::Prey = agent.species {
-            let mut rng = rand::thread_rng();
+            let mut rng = ::rand::thread_rng();
             if rng.gen_bool(probability) {
                 newborns.push(Agent { x: agent.x, y: agent.y, energy: 20.0, species: Species::Prey });
             }
@@ -137,18 +138,36 @@ fn count_species(population: &Vec<Agent>) -> (usize, usize) {
     (prey, predators)
 }
 
-fn main() {
+#[macroquad::main("Predator-Prey Simulation")]
+async fn main() {
     let mut population = spawn_initial_population();
+    let mut timer = 0.0;
+    let tick_interval = 0.15; // un tick de simulation toutes les 0.15 secondes
 
-    for tick in 0..50 {
-        move_agents(&mut population);
-        handle_reproduction(&mut population, 0.1);
-        let captures = handle_predation(&mut population, 0.3, 10.0);
-        handle_predator_energy(&mut population, 1.0);
-        handle_predator_reproduction(&mut population, 30.0);
-        remove_dead_predators(&mut population);
+    loop {
+        clear_background(WHITE);
 
-        let (prey, predators) = count_species(&population);
-        println!("--- Tick {} : {} proies, {} prédateurs ({} captures) ---", tick, prey, predators, captures);
+        timer += get_frame_time();
+        if timer >= tick_interval {
+            timer = 0.0;
+            move_agents(&mut population);
+            handle_reproduction(&mut population, 0.05);
+            handle_predation(&mut population, 0.3, 10.0);
+            handle_predator_energy(&mut population, 1.0);
+            handle_predator_reproduction(&mut population, 30.0);
+            remove_dead_predators(&mut population);
+        }
+
+        for agent in &population {
+            let color = match agent.species {
+                Species::Prey => GREEN,
+                Species::Predator => RED,
+            };
+            let screen_x = agent.x as f32 * 30.0 + 50.0;
+            let screen_y = agent.y as f32 * 30.0 + 50.0;
+            draw_circle(screen_x, screen_y, 5.0, color);
+        }
+
+        next_frame().await;
     }
 }
