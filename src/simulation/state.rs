@@ -1,5 +1,6 @@
 use super::agent::Agent;
 use super::engine;
+use super::config::SimulationConfig;
 
 // État global de la simulation
 pub struct SimulationState {
@@ -8,27 +9,31 @@ pub struct SimulationState {
     pub timer: f64,
     pub tick_interval: f64,
     pub paused: bool,
-    pub current_tick: u64,
-    pub ticks_per_cycle: u64,
-    pub current_cycle: u64,
+    pub current_tick: i64,
+    pub ticks_per_cycle: i64,
+    pub current_cycle: i64,
+    pub config: SimulationConfig,
 }
 
 impl SimulationState {
-    // Créer une nouvelle simulation
-    pub fn new() -> Self {
-        // Utiliser des coordonnées relatives (0..400)
-        // Le frontend les mettra à l'échelle
-        let population = engine::spawn_initial_population(0.0, 0.0, 400.0, 400.0);
+
+    pub fn with_config(config: &SimulationConfig) -> Self {
+        let population = engine::spawn_initial_population(
+            0.0, 0.0, 400.0, 400.0,
+            config.initial_prey,
+            config.initial_predators,
+        );
 
         SimulationState {
             population,
             history: Vec::new(),
             timer: 0.0,
-            tick_interval: 0.1,
+            tick_interval: config.tick_interval,
             paused: false,
-            current_tick: 0,           // ← AJOUTER
-            ticks_per_cycle: 10,       // ← AJOUTER (valeur par défaut)
-            current_cycle: 0,  
+            current_tick: 0,
+            ticks_per_cycle: config.ticks_per_cycle,
+            current_cycle: 0,
+            config: config.clone(),  // ← AJOUTER
         }
     }
 
@@ -57,16 +62,16 @@ impl SimulationState {
         engine::choose_directions(&mut self.population);
 
         // Reproduction des proies
-        engine::handle_reproduction(&mut self.population, 0.05);
+        engine::handle_reproduction(&mut self.population, self.config.prey_reproduction_rate);
 
         // Prédation
-        engine::handle_predation(&mut self.population, 30.0, 12.0);
+        engine::handle_predation(&mut self.population, self.config.capture_radius, self.config.energy_gain);
 
         // Perte d'énergie des prédateurs
-        engine::handle_predator_energy(&mut self.population, 0.5);
+        engine::handle_predator_energy(&mut self.population, self.config.energy_loss);
 
         // Reproduction des prédateurs
-        engine::handle_predator_reproduction(&mut self.population, 15.0);
+        engine::handle_predator_reproduction(&mut self.population, self.config.predator_reproduction_threshold);
 
         // Supprimer les prédateurs morts
         engine::remove_dead_predators(&mut self.population);
@@ -82,9 +87,15 @@ impl SimulationState {
 
     // Réinitialiser la simulation
     pub fn reset(&mut self) {
-        self.population = engine::spawn_initial_population(0.0, 0.0, 400.0, 400.0);
+        self.population = engine::spawn_initial_population(
+            0.0, 0.0, 400.0, 400.0,
+            self.config.initial_prey,
+            self.config.initial_predators,
+        );
         self.history.clear();
         self.timer = 0.0;
+        self.current_tick = 0;
+        self.current_cycle = 0;
     }
 
     // Basculer pause / lecture
@@ -132,9 +143,9 @@ pub struct StateResponse {
     pub history: Vec<(usize, usize)>,
     pub agents: Vec<AgentData>,
     pub paused: bool,
-    pub cycle: u64,
-    pub tick: u64,
-    pub ticks_per_cycle: u64,  // ← AJOUTER
+    pub cycle: i64,
+    pub tick: i64,
+    pub ticks_per_cycle: i64,  // ← AJOUTER
 }
 
 impl StateResponse {

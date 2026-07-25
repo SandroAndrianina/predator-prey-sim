@@ -2,3 +2,4 @@
 pub mod agent;
 pub mod engine;
 pub mod state;
+pub mod config;

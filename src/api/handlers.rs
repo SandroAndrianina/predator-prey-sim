@@ -1,6 +1,8 @@
 use actix_web::{web, HttpResponse, Responder};
 use std::sync::Mutex;
 use crate::simulation::state::{SimulationState, StateResponse};
+use crate::db;
+use crate::simulation::config::SimulationConfig; 
 
 pub struct AppState {
     pub simulation: Mutex<SimulationState>,
@@ -66,4 +68,23 @@ pub struct AutoTickParams {
 pub async fn get_history(data: web::Data<AppState>) -> impl Responder {
     let simulation = data.simulation.lock().unwrap();
     HttpResponse::Ok().json(&simulation.history)
+}
+
+// === ROUTE GET /api/configs ===
+pub async fn get_configs(_data: web::Data<AppState>) -> impl Responder {  
+    let conn = db::init_db().unwrap();
+    let configs = db::load_all_configs(&conn).unwrap();
+    HttpResponse::Ok().json(configs)
+}
+
+pub async fn create_config(
+    _data: web::Data<AppState>,  
+    config: web::Json<SimulationConfig>,
+) -> impl Responder {
+    let conn = db::init_db().unwrap();
+    let id = db::save_config(&conn, &config).unwrap();
+    HttpResponse::Created().json(serde_json::json!({
+        "id": id,
+        "status": "ok"
+    }))
 }

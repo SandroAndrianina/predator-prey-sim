@@ -32,11 +32,18 @@ pub fn distance(a: &Agent, b: &Agent) -> f64 {
     (dx * dx + dy * dy).sqrt()
 }
 
-pub fn spawn_initial_population(sim_x: f32, sim_y: f32, sim_w: f32, sim_h: f32) -> Vec<Agent> {
+pub fn spawn_initial_population(
+    sim_x: f32,
+    sim_y: f32,
+    sim_w: f32,
+    sim_h: f32,
+    initial_prey: i64,
+    initial_predators: i64,
+) -> Vec<Agent> {
     let mut population = Vec::new();
     let mut rng = rand::thread_rng();
-
-    for _ in 0..200 {
+    
+    for _ in 0..initial_prey {
         population.push(Agent {
             id: next_agent_id(),
             x: sim_x as f64 + rng.gen_range(10.0..sim_w as f64 - 10.0),
@@ -47,7 +54,7 @@ pub fn spawn_initial_population(sim_x: f32, sim_y: f32, sim_w: f32, sim_h: f32) 
             species: Species::Prey,
         });
     }
-    for _ in 0..1 {
+    for _ in 0..initial_predators {
         population.push(Agent {
             id: next_agent_id(),
             x: sim_x as f64 + rng.gen_range(10.0..sim_w as f64 - 10.0),

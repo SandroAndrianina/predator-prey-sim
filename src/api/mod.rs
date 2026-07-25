@@ -10,7 +10,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/tick", web::post().to(handlers::tick))
             .route("/reset", web::post().to(handlers::reset))
             .route("/toggle-pause", web::post().to(handlers::toggle_pause))
-            .route("/auto", web::post().to(handlers::auto_tick))
-            .route("/history", web::get().to(handlers::get_history)),
+            .route("/configs", web::get().to(handlers::get_configs))   // ← AJOUTER
+            .route("/configs", web::post().to(handlers::create_config)) // ← AJOUTER
     );
 }
