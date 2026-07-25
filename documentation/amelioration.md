@@ -309,6 +309,16 @@ Au lieu de simples nombres, des indicateurs avec tendance :
 
 ---
 
+## 💡 CARTE
+**Pour faire plus realiste et plus biologique utilisant une carte topographique**
+![alt text](topo.jpg)
+
+**Au lieu d'un simple fond blanc**
+
+![alt text](topo-2.jpg)
+
+---
+
 ## 💡 PROPOSITION FINALE
 
 **Eviter un UI surchage**
