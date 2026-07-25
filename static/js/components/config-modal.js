@@ -1,6 +1,14 @@
 // ============================================================
 // CONFIG MODAL - Logique
 // ============================================================
+import { fetchState, state } from '../core/api.js';        // ← AJOUTER
+import { drawAgents } from '../core/simulation.js';   
+
+const API_URL = '/api';  // ← AJOUTER CETTE LIGNE
+
+// ============================================================
+// CONFIG MODAL - Logique
+// ============================================================
 
 let currentConfig = {};
 // ============================================================
@@ -10,7 +18,7 @@ let currentConfig = {};
 // ============================================================
 // CHARGER LES PRESETS DANS LA LISTE
 // ============================================================
-async function loadPresets() {
+export async function loadPresets() {
     try {
         const response = await fetch(`${API_URL}/configs`);
         const configs = await response.json();
@@ -43,7 +51,7 @@ async function loadPresets() {
 // ============================================================
 // AFFICHER LA PRÉVISUALISATION AU SURVOL
 // ============================================================
-function initPresetPreview() {
+export function initPresetPreview() {
     const select = document.getElementById('presetSelect');
     const preview = document.getElementById('presetPreview');
     
@@ -97,7 +105,7 @@ function initPresetPreview() {
 // ============================================================
 // CHARGER UN PRESET DANS LE FORMULAIRE
 // ============================================================
-async function loadPresetIntoForm(id) {
+export async function loadPresetIntoForm(id) {
     try {
         const response = await fetch(`${API_URL}/configs`);
         const configs = await response.json();
@@ -129,7 +137,7 @@ async function loadPresetIntoForm(id) {
 // ============================================================
 // SAUVEGARDER UN PRESET
 // ============================================================
-async function saveConfig() {
+export async function saveConfig() {
     const config = getConfigFromForm();
     
     try {
@@ -154,7 +162,7 @@ async function saveConfig() {
 // ============================================================
 // APPLIQUER LA CONFIG ET REDÉMARRER
 // ============================================================
-async function applyAndRestart() {
+export async function applyAndRestart() {
     const config = getConfigFromForm();
     
     try {
@@ -183,7 +191,7 @@ async function applyAndRestart() {
 // ============================================================
 // RÉCUPÉRER LES VALEURS DU FORMULAIRE
 // ============================================================
-function getConfigFromForm() {
+export function getConfigFromForm() {
     return {
         name: document.getElementById('configName').value,
         prey_reproduction_rate: parseFloat(document.getElementById('preyReproduction').value),
@@ -202,7 +210,7 @@ function getConfigFromForm() {
 // ============================================================
 // INITIALISER LES SLIDERS
 // ============================================================
-function initSliders() {
+export function initSliders() {
     const sliders = [
         'preyReproduction', 'captureRadius', 'energyGain',
         'energyLoss', 'predatorThreshold', 'ticksPerCycle'
@@ -222,7 +230,7 @@ function initSliders() {
 // ============================================================
 // INITIALISATION DU MODAL
 // ============================================================
-function initConfigModal() {
+export function initConfigModal() {
     // Bouton "Paramètres" dans la sidebar
     const navConfig = document.getElementById('navConfig');
     if (navConfig) {

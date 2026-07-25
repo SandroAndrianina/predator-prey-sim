@@ -1,0 +1,19 @@
+static/
+├── index.html                    # Point d'entrée unique
+├── css/
+│   └── style.css                 # Styles principaux
+├── js/
+│   ├── app.js                    # Point d'entrée JS (importe tout)
+│   ├── core/
+│   │   ├── api.js                # Appels API (fetchState, sendTick...)
+│   │   ├── simulation.js         # Logique simulation (agents, canvas)
+│   │   └── chart.js              # Chart.js (historique)
+│   ├── components/
+│   │   ├── sidebar.js            # Sidebar (load + events)
+│   │   ├── config-modal.js       # Modal de config (logique)
+│   │   └── kpi.js                # Mise à jour des KPI
+│   └── utils/
+│       └── helpers.js            # Fonctions utilitaires (lerp, etc.)
+└── templates/
+    ├── sidebar.html              # HTML de la sidebar
+    └── config-modal.html         # HTML du modal

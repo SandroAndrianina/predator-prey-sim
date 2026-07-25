@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>🦁 Predator-Prey Simulation</title>
+    <title>Predator-Prey Simulation</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,8 +11,6 @@
     
     <!-- Bootstrap 5 + Bootswatch Zephyr -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/zephyr/bootstrap.min.css">
-    <!-- Bootstrap JS (pour le modal) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -21,7 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Notre thème personnalisé -->
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <div class="app-shell">
@@ -34,7 +32,7 @@
             <header class="app-topbar">
                 <div>
                     <p class="welcome">
-                        🦁 Simulation Proie-Prédateur
+                        Simulation Proie-Prédateur
                         <span id="cycleDisplay">Cycle 0 · Tick 0</span>
                     </p>
                 </div>
@@ -130,25 +128,18 @@
         </div>
     </div>
 
-<!-- ============================================================ -->
-<!-- MODAL CONFIGURATION -->
-<!-- ============================================================ -->
-<div id="configModalContainer"></div>
+    <!-- ============================================================ -->
+    <!-- TEMPLATES (chargés dynamiquement) -->
+    <!-- ============================================================ -->
+    <div id="configModalContainer"></div>
 
-<!-- 1. Bootstrap (dépendance) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ============================================================ -->
+    <!-- SCRIPTS -->
+    <!-- ============================================================ -->
+    
+    <!-- 1. Bootstrap (dépendance) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- 2. Loader du modal (charge le HTML) -->
-<script src="/static/config-modal-loader.js" defer></script>
-
-<!-- 3. Logique du modal (déclare initConfigModal) -->
-<script src="/static/config-modal.js" defer></script>
-
-<!-- 4. Sidebar -->
-<script src="/static/sidebar-loader.js" defer></script>
-
-<!-- 5. Script principal (appelle initConfigModal) -->
-<script src="/static/script.js" defer></script>
-
+    <script type="module" src="/static/js/main.js" defer></script>
 </body>
 </html>
