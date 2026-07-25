@@ -193,7 +193,8 @@ async function fetchState() {
             cycle: data.cycle || 0,
             tick: data.tick || 0,
             paused: data.paused,
-            ticks_per_cycle: data.ticks_per_cycle || 10  // ← AJOUTER
+            ticks_per_cycle: data.ticks_per_cycle || 10,
+            agents: data.agents || []  // ✅ AJOUTER CETTE LIGNE
         };
         isPaused = data.paused;
 
@@ -273,7 +274,9 @@ function getInterpolatedAgents() {
 }
 
 function renderLoop() {
-    drawAgents(getInterpolatedAgents());
+    if (state.agents && state.agents.length > 0) {
+        drawAgents(getInterpolatedAgents());
+    }
     requestAnimationFrame(renderLoop);
 }
 
@@ -386,12 +389,211 @@ window.onSidebarLoaded = function() {
 };
 
 // ============================================================
+// CHARGER LES PRESETS
+// ============================================================
+async function loadPresets() {
+    try {
+        const response = await fetch(`${API_URL}/configs`);
+        const configs = await response.json();
+        const select = document.getElementById('presetSelect');
+        
+        // Garder l'option vide
+        select.innerHTML = '<option value="">-- Sélectionner un preset --</option>';
+        
+        configs.forEach(config => {
+            const option = document.createElement('option');
+            option.value = config.id;
+            option.textContent = config.name;
+            select.appendChild(option);
+        });
+        
+        return configs;
+    } catch (error) {
+        console.error('Erreur chargement presets:', error);
+        return [];
+    }
+}
+
+// ============================================================
+// CHARGER UN PRESET DANS LE FORMULAIRE
+// ============================================================
+async function loadPreset(id) {
+    try {
+        const response = await fetch(`${API_URL}/configs`);
+        const configs = await response.json();
+        const config = configs.find(c => c.id == id);
+        
+        if (config) {
+            document.getElementById('configName').value = config.name;
+            document.getElementById('preyReproduction').value = config.prey_reproduction_rate;
+            document.getElementById('preyReproductionValue').textContent = config.prey_reproduction_rate;
+            document.getElementById('captureRadius').value = config.capture_radius;
+            document.getElementById('captureRadiusValue').textContent = config.capture_radius;
+            document.getElementById('energyGain').value = config.energy_gain;
+            document.getElementById('energyGainValue').textContent = config.energy_gain;
+            document.getElementById('energyLoss').value = config.energy_loss;
+            document.getElementById('energyLossValue').textContent = config.energy_loss;
+            document.getElementById('predatorThreshold').value = config.predator_reproduction_threshold;
+            document.getElementById('predatorThresholdValue').textContent = config.predator_reproduction_threshold;
+            document.getElementById('ticksPerCycle').value = config.ticks_per_cycle;
+            document.getElementById('ticksPerCycleValue').textContent = config.ticks_per_cycle;
+            document.getElementById('initialPrey').value = config.initial_prey;
+            document.getElementById('initialPredators').value = config.initial_predators;
+            document.getElementById('maxAgents').value = config.max_agents;
+        }
+    } catch (error) {
+        console.error('Erreur chargement preset:', error);
+    }
+}
+
+// ============================================================
+// SAUVEGARDER UN PRESET
+// ============================================================
+async function saveConfig() {
+    const config = getConfigFromForm();
+    
+    try {
+        const response = await fetch(`${API_URL}/configs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        
+        if (response.ok) {
+            alert('✅ Preset sauvegardé !');
+            loadPresets();
+        } else {
+            alert('❌ Erreur lors de la sauvegarde');
+        }
+    } catch (error) {
+        console.error('Erreur sauvegarde:', error);
+        alert('❌ Erreur de connexion');
+    }
+}
+
+// ============================================================
+// APPLIQUER LA CONFIG ET REDÉMARRER
+// ============================================================
+async function applyAndRestart() {
+    const config = getConfigFromForm();
+    
+    try {
+        // 1. Sauvegarder la config
+        const saveResponse = await fetch(`${API_URL}/configs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        
+        if (!saveResponse.ok) {
+            alert('❌ Erreur lors de la sauvegarde');
+            return;
+        }
+        
+        const saved = await saveResponse.json();
+        
+        // 2. Appliquer la config (redémarrer la simulation)
+        const applyResponse = await fetch(`${API_URL}/apply-config/${saved.id}`, {
+            method: 'POST'
+        });
+        
+        if (applyResponse.ok) {
+            alert('✅ Configuration appliquée et simulation redémarrée !');
+            // Fermer le modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('configModal'));
+            if (modal) modal.hide();
+            // Rafraîchir l'état
+            await fetchState();
+        } else {
+            alert('❌ Erreur lors de l\'application');
+        }
+    } catch (error) {
+        console.error('Erreur application:', error);
+        alert('❌ Erreur de connexion');
+    }
+}
+
+// ============================================================
+// RÉCUPÉRER LES VALEURS DU FORMULAIRE
+// ============================================================
+function getConfigFromForm() {
+    return {
+        name: document.getElementById('configName').value,
+        prey_reproduction_rate: parseFloat(document.getElementById('preyReproduction').value),
+        capture_radius: parseFloat(document.getElementById('captureRadius').value),
+        energy_gain: parseFloat(document.getElementById('energyGain').value),
+        energy_loss: parseFloat(document.getElementById('energyLoss').value),
+        predator_reproduction_threshold: parseFloat(document.getElementById('predatorThreshold').value),
+        initial_prey: parseInt(document.getElementById('initialPrey').value),
+        initial_predators: parseInt(document.getElementById('initialPredators').value),
+        ticks_per_cycle: parseInt(document.getElementById('ticksPerCycle').value),
+        max_agents: parseInt(document.getElementById('maxAgents').value),
+        tick_interval: 0.1
+    };
+}
+
+// ============================================================
+// INITIALISER LES SLIDERS
+// ============================================================
+function initSliders() {
+    const sliders = [
+        'preyReproduction', 'captureRadius', 'energyGain',
+        'energyLoss', 'predatorThreshold', 'ticksPerCycle'
+    ];
+    
+    sliders.forEach(id => {
+        const slider = document.getElementById(id);
+        const valueDisplay = document.getElementById(id + 'Value');
+        if (slider && valueDisplay) {
+            slider.addEventListener('input', () => {
+                valueDisplay.textContent = slider.value;
+            });
+        }
+    });
+}
+
+// ============================================================
+// CONFIGURER LES ÉVÉNEMENTS DU MODAL
+// ============================================================
+function initConfigModal() {
+    // Bouton "Paramètres" dans la sidebar
+    const navConfig = document.getElementById('navConfig');
+    if (navConfig) {
+        navConfig.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadPresets();
+            const modal = new bootstrap.Modal(document.getElementById('configModal'));
+            modal.show();
+        });
+    }
+    
+    // Charger un preset
+    document.getElementById('presetSelect').addEventListener('change', function() {
+        if (this.value) {
+            loadPreset(this.value);
+        }
+    });
+    
+    // Sauvegarder
+    document.getElementById('btnSaveConfig').addEventListener('click', saveConfig);
+    
+    // Appliquer & Redémarrer
+    document.getElementById('btnApplyConfig').addEventListener('click', applyAndRestart);
+    
+    // Initialiser les sliders
+    initSliders();
+}
+
+// ============================================================
 // INITIALISATION
 // ============================================================
 async function init() {
     resizeCanvas();
     await fetchState();
     updatePauseButton();
+    
+    // Charger les presets
+    await loadPresets();
 
     // Si la sidebar est déjà chargée (cas où script.js s'exécute après)
     if (document.getElementById('toggleAutoPlay')) {

@@ -77,6 +77,7 @@ pub async fn get_configs(_data: web::Data<AppState>) -> impl Responder {
     HttpResponse::Ok().json(configs)
 }
 
+// === ROUTE POST /api/configs ===
 pub async fn create_config(
     _data: web::Data<AppState>,  
     config: web::Json<SimulationConfig>,
@@ -86,5 +87,50 @@ pub async fn create_config(
     HttpResponse::Created().json(serde_json::json!({
         "id": id,
         "status": "ok"
+    }))
+}
+
+// === ROUTE POST /api/apply-config/{id} ===
+pub async fn apply_config(
+    data: web::Data<AppState>,
+    path: web::Path<i64>,
+) -> impl Responder {
+    let id = path.into_inner();
+    let conn = db::init_db().unwrap();
+    
+    // Charger la config depuis la base
+    let config = match db::load_config_by_id(&conn, id) {
+        Ok(c) => c,
+        Err(_) => {
+            return HttpResponse::NotFound().json(serde_json::json!({
+                "error": "Configuration non trouvée"
+            }));
+        }
+    };
+    
+    // Appliquer la config à la simulation
+    let mut simulation = data.simulation.lock().unwrap();
+    simulation.apply_config(&config);
+    simulation.reset();
+    
+    HttpResponse::Ok().json(serde_json::json!({
+        "status": "ok",
+        "message": format!("Configuration '{}' appliquée", config.name)
+    }))
+}
+
+// === ROUTE POST /api/apply-config-direct ===
+// Applique une config directement SANS la sauvegarder
+pub async fn apply_config_direct(
+    data: web::Data<AppState>,
+    config: web::Json<SimulationConfig>,
+) -> impl Responder {
+    let mut simulation = data.simulation.lock().unwrap();
+    simulation.apply_config(&config);
+    simulation.reset();
+    
+    HttpResponse::Ok().json(serde_json::json!({
+        "status": "ok",
+        "message": format!("Configuration '{}' appliquée", config.name)
     }))
 }

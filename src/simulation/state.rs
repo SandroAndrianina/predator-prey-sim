@@ -124,6 +124,17 @@ impl SimulationState {
             })
             .collect()
     }
+
+    pub fn apply_config(&mut self, config: &SimulationConfig) {
+        self.config = config.clone();
+        self.tick_interval = config.tick_interval;
+        self.ticks_per_cycle = config.ticks_per_cycle;
+        // Réinitialiser les compteurs
+        self.current_tick = 0;
+        self.current_cycle = 0;
+        self.history.clear();
+        self.timer = 0.0;
+    }
 }
 
 // Données simplifiées des agents pour le JSON
