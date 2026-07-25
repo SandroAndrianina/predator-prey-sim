@@ -13,7 +13,11 @@ let state = {
     predators: 0,
     total: 0,
     history: [],
-    ticks: 0
+    ticks: 0,
+    cycle: 0,
+    tick: 0,
+    paused: false,
+    ticks_per_cycle: 10  // ← AJOUTER (valeur par défaut)
 };
 
 // Deux instantanés d'agents successifs, utilisés pour interpoler
@@ -29,10 +33,13 @@ const elements = {
     kpiPrey: document.getElementById('kpiPrey'),
     kpiPredators: document.getElementById('kpiPredators'),
     kpiTotal: document.getElementById('kpiTotal'),
-    kpiTicks: document.getElementById('kpiTicks'),
+    kpiTicks: document.getElementById('kpiTicks'),  // Gardé pour compatibilité
+    kpiCycle: document.getElementById('kpiCycle'),  // ← AJOUTER
+    kpiTick: document.getElementById('kpiTick'),    // ← AJOUTER
     badgePrey: document.getElementById('badgePrey'),
     badgePredators: document.getElementById('badgePredators'),
     badgeTick: document.getElementById('badgeTick'),
+    badgeCycle: document.getElementById('badgeCycle'), // ← AJOUTER
     agentCount: document.getElementById('agentCount'),
     historyBody: document.getElementById('historyBody'),
     toggleAutoPlay: document.getElementById('toggleAutoPlay'),
@@ -159,7 +166,7 @@ const historyChart = new Chart(historyCtx, {
                 title: { display: true, text: 'Population' }
             },
             x: {
-                title: { display: true, text: 'Temps (ticks)' }
+                title: { display: true, text: 'Temps (Cycle)' }
             }
         },
         interaction: {
@@ -182,13 +189,14 @@ async function fetchState() {
             predators: data.predators,
             total: data.total,
             history: data.history || [],
-            ticks: data.history ? data.history.length : 0
+            ticks: data.history ? data.history.length : 0,
+            cycle: data.cycle || 0,
+            tick: data.tick || 0,
+            paused: data.paused,
+            ticks_per_cycle: data.ticks_per_cycle || 10  // ← AJOUTER
         };
         isPaused = data.paused;
 
-        // On glisse l'ancien instantané vers "previous", et on stocke
-        // le nouveau dans "current" — c'est entre ces deux-là qu'on
-        // va interpoler à chaque frame affichée.
         previousAgents = currentAgents;
         currentAgents = new Map();
         (data.agents || []).forEach(a => {
@@ -273,23 +281,45 @@ function renderLoop() {
 // UI UPDATE (KPI, graphique, tableau — pas besoin d'interpolation ici)
 // ============================================================
 function updateStatsUI() {
-    elements.kpiPrey.textContent = state.prey;
-    elements.kpiPredators.textContent = state.predators;
-    elements.kpiTotal.textContent = state.total;
-    elements.kpiTicks.textContent = state.ticks;
-    elements.badgePrey.textContent = state.prey;
-    elements.badgePredators.textContent = state.predators;
-    elements.agentCount.textContent = `${state.total} agents`;
+    // KPI - Vérifier que les éléments existent
+    if (elements.kpiPrey) elements.kpiPrey.textContent = state.prey;
+    if (elements.kpiPredators) elements.kpiPredators.textContent = state.predators;
+    if (elements.kpiTotal) elements.kpiTotal.textContent = state.total;
+    if (elements.badgePrey) elements.badgePrey.textContent = state.prey;
+    if (elements.badgePredators) elements.badgePredators.textContent = state.predators;
+    if (elements.agentCount) elements.agentCount.textContent = `${state.total} agents`;
+    
+    // Cycles et Ticks - Vérifier l'existence
+    if (elements.kpiCycle) elements.kpiCycle.textContent = state.cycle || 0;
+    if (elements.kpiTick) elements.kpiTick.textContent = state.tick || 0;
+    if (elements.badgeCycle) elements.badgeCycle.textContent = state.cycle || 0;
+    
+    // Topbar
+    const cycleDisplay = document.getElementById('cycleDisplay');
+    if (cycleDisplay) {
+        cycleDisplay.textContent = `Cycle ${state.cycle || 0} · Tick ${state.tick || 0}`;
+    }
 
     if (state.history.length > 0) {
-        const labels = state.history.map((_, i) => i);
-        const preyData = state.history.map(h => h[0]);
-        const predatorData = state.history.map(h => h[1]);
+        const ticksPerCycle = state.ticks_per_cycle || 10;  // ← Utiliser la valeur du backend
+        
+        // Prendre UN point par cycle
+        const cycleData = [];
+        for (let i = 0; i < state.history.length; i += ticksPerCycle) {
+            const idx = Math.min(i + ticksPerCycle - 1, state.history.length - 1);
+            cycleData.push(state.history[idx]);
+        }
+        
+        const labels = cycleData.map((_, i) => i + 1);
+        const preyData = cycleData.map(h => h[0]);
+        const predatorData = cycleData.map(h => h[1]);
 
-        historyChart.data.labels = labels;
-        historyChart.data.datasets[0].data = preyData;
-        historyChart.data.datasets[1].data = predatorData;
-        historyChart.update('none');
+        if (historyChart) {
+            historyChart.data.labels = labels;
+            historyChart.data.datasets[0].data = preyData;
+            historyChart.data.datasets[1].data = predatorData;
+            historyChart.update('none');
+        }
     }
 
     updateTable();
@@ -336,12 +366,24 @@ function updatePauseButton() {
 }
 
 // ============================================================
-// EVENT LISTENERS
+// EVENT LISTENERS (initialisés APRÈS chargement sidebar)
 // ============================================================
-elements.toggleAutoPlay.addEventListener('click', togglePause);
-elements.stepForward.addEventListener('click', sendTick);
-elements.btnReset.addEventListener('click', resetSimulation);
-elements.navReset.addEventListener('click', resetSimulation);
+function initEventListeners() {
+    const toggleBtn = document.getElementById('toggleAutoPlay');
+    const stepBtn = document.getElementById('stepForward');
+    const resetBtn = document.getElementById('btnReset');
+    const navReset = document.getElementById('navReset');
+    
+    if (toggleBtn) toggleBtn.addEventListener('click', togglePause);
+    if (stepBtn) stepBtn.addEventListener('click', sendTick);
+    if (resetBtn) resetBtn.addEventListener('click', resetSimulation);
+    if (navReset) navReset.addEventListener('click', resetSimulation);
+}
+
+// Fonction appelée par sidebar-loader.js après chargement
+window.onSidebarLoaded = function() {
+    initEventListeners();
+};
 
 // ============================================================
 // INITIALISATION
@@ -351,12 +393,12 @@ async function init() {
     await fetchState();
     updatePauseButton();
 
-    // On interroge le serveur au même rythme que son horloge interne
-    // (100ms) — juste pour LIRE l'état, jamais pour le faire avancer.
-    setInterval(fetchState, POLL_INTERVAL_MS);
+    // Si la sidebar est déjà chargée (cas où script.js s'exécute après)
+    if (document.getElementById('toggleAutoPlay')) {
+        initEventListeners();
+    }
 
-    // Le rendu, lui, tourne à la fréquence d'affichage de l'écran,
-    // indépendamment du réseau — c'est ça qui rend le mouvement fluide.
+    setInterval(fetchState, POLL_INTERVAL_MS);
     requestAnimationFrame(renderLoop);
 }
 

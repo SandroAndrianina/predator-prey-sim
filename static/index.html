@@ -23,33 +23,8 @@
 </head>
 <body>
     <div class="app-shell">
-        <!-- SIDEBAR -->
-        <aside class="app-sidebar">
-            <div class="brand">
-                <i class="fa-solid fa-paw"></i>
-                <span>Predator-Prey</span>
-            </div>
-            
-            <div class="nav-section-label">Simulation</div>
-            <a href="#" class="nav-link active" id="navSimulation">
-                <i class="fa-solid fa-play"></i> Simulation
-            </a>
-            <a href="#" class="nav-link" id="navDashboard">
-                <i class="fa-solid fa-chart-line"></i> Dashboard
-            </a>
-            
-            <div class="nav-section-label">Contrôle</div>
-            <a href="#" class="nav-link" id="navReset">
-                <i class="fa-solid fa-rotate"></i> Réinitialiser
-            </a>
-            
-            <div class="sidebar-footer">
-                <div class="nav-link" style="opacity:0.6; font-size:0.75rem;">
-                    <i class="fa-regular fa-circle"></i> 
-                    <span id="agentCount">0 agents</span>
-                </div>
-            </div>
-        </aside>
+        <!-- SIDEBAR (chargé dynamiquement) -->
+        <div id="sidebar-container"></div>
 
         <!-- MAIN CONTENT -->
         <div class="app-main">
@@ -57,8 +32,8 @@
             <header class="app-topbar">
                 <div>
                     <p class="welcome">
-                         Simulation Proie-Prédateur
-                        <span>Écosystème en temps réel</span>
+                        🦁 Simulation Proie-Prédateur
+                        <span id="cycleDisplay">Cycle 0 · Tick 0</span>
                     </p>
                 </div>
                 <div class="topbar-search d-none d-md-block">
@@ -90,8 +65,11 @@
                     <div class="kpi-value" id="kpiTotal">--</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label"><i class="fa-regular fa-clock"></i> Ticks</div>
-                    <div class="kpi-value" id="kpiTicks" style="font-size:1.5rem;">0</div>
+                    <div class="kpi-label"><i class="fa-regular fa-clock"></i> Cycle</div>
+                    <div class="kpi-value" id="kpiCycle" style="font-size:1.5rem;">0</div>
+                    <div style="font-size:0.7rem; opacity:0.4; margin-top:4px;">
+                        Tick <span id="kpiTick">0</span>
+                    </div>
                 </div>
             </div>
 
@@ -107,7 +85,7 @@
                         <span class="badge-etat fonctionnel"><i class="fa-solid fa-circle"></i> Proies: <span id="badgePrey">0</span></span>
                         <span class="badge-etat dysfonctionnel"><i class="fa-solid fa-circle"></i> Prédateurs: <span id="badgePredators">0</span></span>
                         <span class="badge-etat" style="background:rgba(18,18,20,0.08); color:var(--ink);">
-                            <i class="fa-regular fa-clock"></i> Tick: <span id="badgeTick">0.3s</span>
+                            <i class="fa-regular fa-clock"></i> Cycle: <span id="badgeCycle">0</span>
                         </span>
                     </div>
                 </div>
@@ -123,7 +101,7 @@
             <div class="card-surface">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
                     <h3 style="font-size:1rem; font-weight:700; margin:0;">
-                        <i class="fa-solid fa-list"></i> Derniers ticks
+                        <i class="fa-solid fa-list"></i> Derniers cycles
                     </h3>
                     <div style="display:flex; gap:8px;">
                         <button class="btn btn-sm btn-outline-secondary" id="btnReset">
@@ -135,7 +113,7 @@
                     <table class="table-modern" id="historyTable">
                         <thead>
                             <tr>
-                                <th># Tick</th>
+                                <th># Cycle</th>
                                 <th><i class="fa-solid fa-circle" style="color:#16a34a;"></i> Proies</th>
                                 <th><i class="fa-solid fa-circle" style="color:#dc2626;"></i> Prédateurs</th>
                                 <th>Total</th>
@@ -150,6 +128,9 @@
         </div>
     </div>
 
-    <script src="/static/script.js"></script>
+<!-- Load sidebar first -->
+<script src="/static/sidebar-loader.js" defer></script>
+<!-- Main script -->
+<script src="/static/script.js" defer></script>
 </body>
 </html>

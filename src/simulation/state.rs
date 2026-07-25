@@ -8,6 +8,9 @@ pub struct SimulationState {
     pub timer: f64,
     pub tick_interval: f64,
     pub paused: bool,
+    pub current_tick: u64,
+    pub ticks_per_cycle: u64,
+    pub current_cycle: u64,
 }
 
 impl SimulationState {
@@ -23,6 +26,9 @@ impl SimulationState {
             timer: 0.0,
             tick_interval: 0.1,
             paused: false,
+            current_tick: 0,           // ← AJOUTER
+            ticks_per_cycle: 10,       // ← AJOUTER (valeur par défaut)
+            current_cycle: 0,  
         }
     }
 
@@ -43,6 +49,9 @@ impl SimulationState {
         for agent in self.population.iter_mut() {
             agent.advance(self.tick_interval);
         }
+
+        self.current_tick += 1;
+        self.current_cycle = self.current_tick / self.ticks_per_cycle;
 
         // Changer les directions
         engine::choose_directions(&mut self.population);
@@ -115,7 +124,6 @@ pub struct AgentData {
     pub species: String,
 }
 
-// Données d'état pour le JSON
 #[derive(serde::Serialize)]
 pub struct StateResponse {
     pub prey: usize,
@@ -124,6 +132,9 @@ pub struct StateResponse {
     pub history: Vec<(usize, usize)>,
     pub agents: Vec<AgentData>,
     pub paused: bool,
+    pub cycle: u64,
+    pub tick: u64,
+    pub ticks_per_cycle: u64,  // ← AJOUTER
 }
 
 impl StateResponse {
@@ -136,6 +147,9 @@ impl StateResponse {
             history: state.history.clone(),
             agents: state.get_agents_data(),
             paused: state.paused,
+            cycle: state.current_cycle,
+            tick: state.current_tick,
+            ticks_per_cycle: state.ticks_per_cycle,  // ← AJOUTER
         }
     }
 }

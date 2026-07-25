@@ -16,7 +16,6 @@ pub async fn get_state(data: web::Data<AppState>) -> impl Responder {
 
 // === ROUTE POST /api/tick ===
 // Avance d'un tick manuellement et retourne le nouvel état
-// (utile pour le bouton "avancer d'un tick", même horloge en pause)
 pub async fn tick(data: web::Data<AppState>) -> impl Responder {
     let mut simulation = data.simulation.lock().unwrap();
     simulation.tick();
@@ -25,7 +24,6 @@ pub async fn tick(data: web::Data<AppState>) -> impl Responder {
 }
 
 // === ROUTE POST /api/reset ===
-// Réinitialise la simulation
 pub async fn reset(data: web::Data<AppState>) -> impl Responder {
     let mut simulation = data.simulation.lock().unwrap();
     simulation.reset();
