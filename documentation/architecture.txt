@@ -1,0 +1,16 @@
+predator-prey-sim/
+├── src/
+│   ├── main.rs (tu vas le modifier)
+│   ├── simulation/ (nouveau dossier)
+│   │   ├── mod.rs
+│   │   ├── agent.rs
+│   │   ├── engine.rs
+│   │   └── state.rs
+│   └── api/ (nouveau dossier)
+│       ├── mod.rs
+│       └── handlers.rs
+├── static/ (nouveau dossier)
+│   ├── index.html
+│   ├── style.css
+│   └── script.js
+└── Cargo.toml (à modifier)

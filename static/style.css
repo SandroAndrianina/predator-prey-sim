@@ -1,0 +1,298 @@
+/* ==========================================================================
+   THEME.CSS — Design glassmorphism pour la simulation
+   ========================================================================== */
+
+:root {
+  /* --- Couleurs --- */
+  --ink: #121214;
+  --ink-soft: #45454c;
+  --muted: #6d6d78;
+  --border: rgba(255, 255, 255, 0.5);
+  --border-soft: rgba(18, 18, 20, 0.08);
+
+  /* --- Verre (glassmorphism) --- */
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-strong: rgba(255, 255, 255, 0.72);
+  --glass-blur: 22px;
+
+  --success: #16a34a;
+  --success-bg: rgba(22, 163, 74, 0.12);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.12);
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --shadow-card: 0 8px 32px rgba(31, 38, 60, 0.10);
+  --shadow-pop: 0 16px 44px rgba(31, 38, 60, 0.18);
+  --sidebar-w: 240px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--ink);
+}
+
+/* Fond dégradé */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Ou utilise ton image : url("../images/bg-gradient.jpg") */
+}
+
+h1, h2, h3, h4, h5, .app-title, .kpi-value {
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+}
+
+a { text-decoration: none; }
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--border);
+}
+
+/* ===== LAYOUT ===== */
+.app-shell {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+  gap: 20px;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 991.98px) {
+  .app-shell { flex-direction: column; padding: 12px; }
+  .app-sidebar { width: 100%; position: static; height: auto; }
+}
+
+/* ===== SIDEBAR ===== */
+.app-sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--glass-strong);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 22px 16px;
+  position: sticky;
+  top: 20px;
+  height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-sidebar .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 22px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.app-sidebar .brand i { font-size: 1.2rem; }
+
+.app-sidebar .nav-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 14px 10px 6px;
+}
+
+.app-sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-bottom: 3px;
+  transition: background 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+}
+.app-sidebar .nav-link i { width: 18px; text-align: center; color: var(--muted); }
+
+.app-sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--ink);
+}
+
+.app-sidebar .nav-link.active {
+  background: var(--ink);
+  color: #fff;
+  box-shadow: var(--shadow-card);
+}
+.app-sidebar .nav-link.active i { color: #fff; }
+
+.app-sidebar .sidebar-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+
+/* ===== TOPBAR ===== */
+.app-topbar {
+  background: var(--glass-strong);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.app-topbar .welcome {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 0;
+}
+.app-topbar .welcome span { color: var(--muted); font-weight: 500; font-size: 0.85rem; display: block; }
+
+.app-topbar .topbar-search {
+  flex: 1;
+  max-width: 340px;
+  position: relative;
+}
+.app-topbar .topbar-search input {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  padding: 9px 16px 9px 38px;
+  font-size: 0.88rem;
+}
+.app-topbar .topbar-search i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.app-topbar .topbar-actions { display: flex; align-items: center; gap: 10px; }
+.icon-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.5);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.icon-btn:hover { background: rgba(255, 255, 255, 0.8); }
+.icon-btn.active { background: var(--ink); color: #fff; }
+
+.avatar-badge {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem;
+}
+
+/* ===== KPI CARDS ===== */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
+.kpi-card {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px 22px;
+}
+.kpi-card .kpi-label { color: var(--muted); font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; }
+.kpi-card .kpi-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+
+/* ===== CHARTS ===== */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 991.98px) { .charts-row { grid-template-columns: 1fr; } }
+
+.chart-card {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px 22px;
+}
+.chart-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; }
+
+/* ===== BADGES ===== */
+.badge-etat {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;
+}
+.badge-etat.fonctionnel { background: var(--success-bg); color: var(--success); }
+.badge-etat.dysfonctionnel { background: var(--danger-bg); color: var(--danger); }
+
+/* ===== TABLE ===== */
+.table-modern {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+.table-modern thead th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.table-modern tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: middle;
+}
+.table-modern tbody tr:last-child td { border-bottom: none; }
+.table-modern tbody tr:hover { background: rgba(255, 255, 255, 0.4); }
+
+.card-surface {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 22px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(18, 18, 20, 0.25); border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
