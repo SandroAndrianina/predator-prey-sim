@@ -252,7 +252,6 @@ function initConfigModal() {
                     });
                     
                     if (response.ok) {
-                        alert('✅ Preset chargé et simulation redémarrée !');
                         const modal = bootstrap.Modal.getInstance(document.getElementById('configModal'));
                         if (modal) modal.hide();
                         await fetchState();
