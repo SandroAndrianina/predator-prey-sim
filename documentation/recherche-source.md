@@ -1,0 +1,11 @@
+Pour bien comprendre le sujet
+
+Une vidéo pour ancrer les maths (celle que je recommande en premier) : la série Differential Equations de Steve Brunton (professeur à l'Université de Washington), épisode "Lecture 8.3: Predator-prey models" sur YouTube. Il y dérive les équations et explique les deux régimes (croissance libre des proies, effondrement des prédateurs sans nourriture) — exactement la logique que tu as codée, mais du côté mathématique pur, pile ce qui manque pour relier ta simulation à agents à la vraie théorie.
+
+Une lecture courte et accessible, pensée pour des biologistes/étudiants : le module "Predator-Prey Dynamics: the Lotka-Volterra Model" de Gross, Beals & Harrell (QUBES Educational Resources, en libre accès) — explique le modèle et ses hypothèses simplificatrices (les mêmes que celles qu'on a discutées ensemble : proies à nourriture illimitée, prédateurs qui dépendent uniquement des proies) sans nécessiter de bagage mathématique lourd.
+
+Pour l'inspiration visuelle/technique côté simulation à agents (très pertinent vu ton approche) : la chaîne YouTube Primer, notamment sa série sur l'évolution simulée par agents en compétition — ce n'est pas du Lotka-Volterra à proprement parler, mais c'est exactement le style de simulation visuelle à base d'agents individuels dont s'inspirent beaucoup de projets comme le tien, avec un rendu très soigné qui peut te donner des idées de mise en scène.
+
+Pour aller plus loin, un livre de référence : Mathematical Models in Biology de Leah Edelstein-Keshet — un manuel classique et très pédagogique, avec un chapitre entier sur les modèles proie-prédateur, qui va au-delà de Lotka-Volterra (modèles avec capacité de charge, réponses fonctionnelles plus réalistes) — utile si un jour tu veux affiner ton modèle au-delà de la version "manuel".
+
+Enfin, pour le contexte historique et le cas réel le plus célèbre : cherche les données de piégeage lynx/lièvre d'Amérique du Nord de la Compagnie de la Baie d'Hudson (souvent citées dans les manuels d'écologie) — c'est LE jeu de données réel qui a validé empiriquement le modèle, et une bonne référence à citer dans ton futur README quand tu compareras ta simulation à de vraies observations (avant de passer, plus tard, à un vrai écosystème malgache).
