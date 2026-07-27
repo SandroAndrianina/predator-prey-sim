@@ -24,6 +24,9 @@ pub struct Agent {
     pub vy: f64,
     pub energy: f64,
     pub species: Species,
+    // Tick de naissance (0 pour la population initiale). Sert à calculer
+    // la durée de vie (en cycles) au moment où l'agent meurt.
+    pub birth_tick: i64,
 }
 
 impl Agent {

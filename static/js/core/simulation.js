@@ -30,9 +30,9 @@ export function drawAgents(agents) {
 
     if (!agents || agents.length === 0) {
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.fillStyle = 'rgba(255,255,255,0.03)';
         ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = '#6d6d78';
+        ctx.fillStyle = '#8888aa';
         ctx.font = '16px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('Aucun agent', w / 2, h / 2);
@@ -45,20 +45,20 @@ export function drawAgents(agents) {
 
     ctx.clearRect(0, 0, w, h);
 
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillStyle = 'rgba(255,255,255,0.03)';
     ctx.fillRect(0, 0, w, h);
 
-    ctx.strokeStyle = 'rgba(18,18,20,0.2)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
     ctx.lineWidth = 1;
     ctx.strokeRect(offsetX, offsetY, 400 * scale, 400 * scale);
 
-    ctx.fillStyle = 'rgba(18,18,20,0.3)';
+    ctx.fillStyle = 'rgba(232,232,240,0.4)';
     ctx.font = '12px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Zone de simulation', w / 2, offsetY - 8);
 
-    ctx.fillStyle = 'rgba(18,18,20,0.2)';
-    ctx.font = '10px Inter, sans-serif';
+    ctx.fillStyle = 'rgba(232,232,240,0.3)';
+    ctx.font = '10px "JetBrains Mono", monospace';
     ctx.textAlign = 'right';
     ctx.fillText(`${agents.length} agents`, w - margin, h - margin);
 
@@ -69,14 +69,18 @@ export function drawAgents(agents) {
         const screenX = offsetX + x * scale;
         const screenY = offsetY + y * scale;
         const radius = agent.species === 'Prey' ? 4 * scale : 6 * scale;
+        const color = agent.species === 'Prey' ? '#00ff88' : '#ff0044';
 
         ctx.beginPath();
         ctx.arc(screenX, screenY, Math.max(radius, 2), 0, 2 * Math.PI);
-        ctx.fillStyle = agent.species === 'Prey' ? '#16a34a' : '#dc2626';
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 6;
         ctx.fill();
+        ctx.shadowBlur = 0;
 
         if (agent.species === 'Predator') {
-            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.strokeStyle = 'rgba(0,0,0,0.4)';
             ctx.lineWidth = 1;
             ctx.stroke();
         }

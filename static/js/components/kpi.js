@@ -69,8 +69,8 @@ export function updateTable() {
         html += `
             <tr>
                 <td>#${i + 1}</td>
-                <td><span style="color:#16a34a;font-weight:700;">${prey}</span></td>
-                <td><span style="color:#dc2626;font-weight:700;">${predators}</span></td>
+                <td><span style="color:#00ff88;font-weight:700;">${prey}</span></td>
+                <td><span style="color:#ff0044;font-weight:700;">${predators}</span></td>
                 <td>${prey + predators}</td>
             </tr>
         `;

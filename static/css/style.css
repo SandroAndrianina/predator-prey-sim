@@ -1,29 +1,37 @@
 /* ==========================================================================
-   THEME.CSS — Design glassmorphism pour la simulation
+   THEME.CSS — Dashboard sombre "salle de contrôle" (inspiré Splunk)
+   Palette et typographie : cf. redesign.md v2.0
    ========================================================================== */
 
 :root {
-  /* --- Couleurs --- */
-  --ink: #121214;
-  --ink-soft: #45454c;
-  --muted: #6d6d78;
-  --border: rgba(255, 255, 255, 0.5);
-  --border-soft: rgba(18, 18, 20, 0.08);
+  /* --- Fond / structure --- */
+  --bg-deep: #0a0a0f;
+  --ink: #e8e8f0;        /* texte principal */
+  --ink-soft: #c4c4d4;
+  --muted: #8888aa;      /* texte secondaire */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-soft: rgba(255, 255, 255, 0.06);
 
-  /* --- Verre (glassmorphism) --- */
-  --glass: rgba(255, 255, 255, 0.55);
-  --glass-strong: rgba(255, 255, 255, 0.72);
-  --glass-blur: 22px;
+  /* --- Verre (glassmorphism sombre) --- */
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-strong: rgba(255, 255, 255, 0.07);
+  --glass-blur: 18px;
 
-  --success: #16a34a;
-  --success-bg: rgba(22, 163, 74, 0.12);
-  --danger: #dc2626;
-  --danger-bg: rgba(220, 38, 38, 0.12);
-  --radius-lg: 20px;
+  /* --- Couleurs sémantiques (cf. palette redesign.md) --- */
+  --prey: #00ff88;         /* proies : vert néon */
+  --prey-bg: rgba(0, 255, 136, 0.12);
+  --predator: #ff0044;     /* prédateurs : rouge sang */
+  --predator-bg: rgba(255, 0, 68, 0.12);
+  --accent-cyan: #00ccff;
+  --accent-violet: #8800ff;
+  --warning: #ff6600;
+  --success: #00cc66;
+
+  --radius-lg: 18px;
   --radius-md: 14px;
   --radius-sm: 10px;
-  --shadow-card: 0 8px 32px rgba(31, 38, 60, 0.10);
-  --shadow-pop: 0 16px 44px rgba(31, 38, 60, 0.18);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-pop: 0 16px 44px rgba(0, 0, 0, 0.6);
   --sidebar-w: 240px;
 }
 
@@ -33,28 +41,32 @@ html, body {
   min-height: 100vh;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--ink);
+  background: var(--bg-deep);
 }
 
-/* Fond dégradé */
+/* Fond sombre profond (remplace le dégradé glassmorphism clair) */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  /* Ou utilise ton image : url("../images/bg-gradient.jpg") */
+  background:
+    radial-gradient(circle at 15% 10%, rgba(0, 204, 255, 0.07), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(136, 0, 255, 0.06), transparent 45%),
+    var(--bg-deep);
 }
 
-h1, h2, h3, h4, h5, .app-title, .kpi-value {
-  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+h1, h2, h3, h4, h5, .app-title, .kpi-value, .kpi-adv-value {
+  font-family: "JetBrains Mono", "Plus Jakarta Sans", monospace;
+  color: var(--ink);
 }
 
 a { text-decoration: none; }
 
 .glass {
   background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   border: 1px solid var(--border);
 }
 
@@ -85,8 +97,8 @@ a { text-decoration: none; }
   width: var(--sidebar-w);
   flex-shrink: 0;
   background: var(--glass-strong);
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -108,7 +120,7 @@ a { text-decoration: none; }
   font-size: 1.15rem;
   color: var(--ink);
 }
-.app-sidebar .brand i { font-size: 1.2rem; }
+.app-sidebar .brand i { font-size: 1.2rem; color: var(--accent-cyan); }
 
 .app-sidebar .nav-section-label {
   font-size: 0.68rem;
@@ -135,16 +147,16 @@ a { text-decoration: none; }
 .app-sidebar .nav-link i { width: 18px; text-align: center; color: var(--muted); }
 
 .app-sidebar .nav-link:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--ink);
 }
 
 .app-sidebar .nav-link.active {
-  background: var(--ink);
-  color: #fff;
-  box-shadow: var(--shadow-card);
+  background: rgba(0, 204, 255, 0.12);
+  color: var(--accent-cyan);
+  box-shadow: none;
 }
-.app-sidebar .nav-link.active i { color: #fff; }
+.app-sidebar .nav-link.active i { color: var(--accent-cyan); }
 
 .app-sidebar .sidebar-footer {
   margin-top: auto;
@@ -155,8 +167,8 @@ a { text-decoration: none; }
 /* ===== TOPBAR ===== */
 .app-topbar {
   background: var(--glass-strong);
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -173,8 +185,9 @@ a { text-decoration: none; }
   font-weight: 700;
   font-size: 1.15rem;
   margin: 0;
+  color: var(--ink);
 }
-.app-topbar .welcome span { color: var(--muted); font-weight: 500; font-size: 0.85rem; display: block; }
+.app-topbar .welcome span { color: var(--muted); font-weight: 500; font-size: 0.85rem; display: block; font-family: "JetBrains Mono", monospace; }
 
 .app-topbar .topbar-search {
   flex: 1;
@@ -183,12 +196,14 @@ a { text-decoration: none; }
 }
 .app-topbar .topbar-search input {
   width: 100%;
-  border: 1px solid var(--border-soft);
-  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
   border-radius: 999px;
   padding: 9px 16px 9px 38px;
   font-size: 0.88rem;
 }
+.app-topbar .topbar-search input::placeholder { color: var(--muted); }
 .app-topbar .topbar-search i {
   position: absolute;
   left: 14px;
@@ -202,30 +217,30 @@ a { text-decoration: none; }
 .icon-btn {
   width: 40px; height: 40px;
   border-radius: 50%;
-  border: 1px solid var(--border-soft);
-  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
   display: inline-flex; align-items: center; justify-content: center;
   color: var(--ink-soft);
   cursor: pointer;
   transition: all 0.2s;
 }
-.icon-btn:hover { background: rgba(255, 255, 255, 0.8); }
-.icon-btn.active { background: var(--ink); color: #fff; }
+.icon-btn:hover { background: rgba(255, 255, 255, 0.09); }
+.icon-btn.active { background: rgba(0, 204, 255, 0.15); color: var(--accent-cyan); border-color: rgba(0, 204, 255, 0.4); }
 
 .avatar-badge {
   width: 40px; height: 40px; border-radius: 50%;
-  background: var(--ink);
-  color: #fff;
+  background: var(--accent-cyan);
+  color: #04121a;
   display: inline-flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 0.85rem;
 }
 
-/* ===== KPI CARDS ===== */
+/* ===== KPI CARDS (haut, 3 principaux) ===== */
 .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
 .kpi-card {
   background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -240,22 +255,41 @@ a { text-decoration: none; }
 
 .chart-card {
   background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: 20px 22px;
 }
-.chart-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; }
+.chart-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; color: var(--ink); }
+.chart-card h3 i { color: var(--accent-cyan); margin-right: 6px; }
+
+/* ===== D3 CHARTS (phase / heatmap) ===== */
+.d3-chart-container {
+  position: relative;
+  width: 100%;
+  height: 260px;
+}
+.d3-chart-container svg { display: block; }
+
+.phase-axis text { fill: var(--muted); font-size: 0.68rem; font-family: "JetBrains Mono", monospace; }
+.phase-axis path, .phase-axis line { stroke: var(--border); }
+
+.phase-point { fill: var(--accent-cyan); fill-opacity: 0.55; }
+.phase-point-current {
+  fill: var(--prey);
+  fill-opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.9));
+}
 
 /* ===== BADGES ===== */
 .badge-etat {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 12px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;
 }
-.badge-etat.fonctionnel { background: var(--success-bg); color: var(--success); }
-.badge-etat.dysfonctionnel { background: var(--danger-bg); color: var(--danger); }
+.badge-etat.fonctionnel { background: var(--prey-bg); color: var(--prey); }
+.badge-etat.dysfonctionnel { background: var(--predator-bg); color: var(--predator); }
 
 /* ===== TABLE ===== */
 .table-modern {
@@ -263,6 +297,7 @@ a { text-decoration: none; }
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.85rem;
+  color: var(--ink-soft);
 }
 .table-modern thead th {
   text-align: left;
@@ -280,19 +315,130 @@ a { text-decoration: none; }
   vertical-align: middle;
 }
 .table-modern tbody tr:last-child td { border-bottom: none; }
-.table-modern tbody tr:hover { background: rgba(255, 255, 255, 0.4); }
+.table-modern tbody tr:hover { background: rgba(255, 255, 255, 0.04); }
 
 .card-surface {
   background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: 22px;
 }
 
+/* ==========================================================================
+   KPI AVANCÉS (7, bas de page) — valeurs déjà calculées côté Rust,
+   ce bloc ne fait que la mise en forme (flèche, mini-barre, tooltip).
+   ========================================================================== */
+.kpi-adv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.kpi-adv-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.kpi-adv-card:hover {
+  border-color: rgba(0, 204, 255, 0.35);
+  background: rgba(0, 204, 255, 0.04);
+}
+
+.kpi-adv-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.kpi-adv-icon { color: var(--accent-cyan); font-size: 0.85rem; }
+.kpi-adv-label {
+  flex: 1;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.kpi-adv-trend { font-size: 0.8rem; font-weight: 700; }
+.kpi-adv-trend.trend-up { color: var(--prey); }
+.kpi-adv-trend.trend-down { color: var(--predator); }
+.kpi-adv-trend.trend-flat { color: var(--muted); }
+
+.kpi-adv-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.kpi-adv-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.kpi-adv-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent-cyan);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.kpi-adv-bar-fill.bar-negative { background: var(--predator); }
+
+/* Tooltip léger en CSS pur (pas de dépendance JS supplémentaire) */
+[data-tooltip] { cursor: help; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  background: #05050a;
+  color: var(--ink);
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: var(--shadow-pop);
+  z-index: 20;
+}
+[data-tooltip]:hover::after { opacity: 1; }
+
+/* ===== HISTOGRAMME D'ÉNERGIE (mini, 10 bins) ===== */
+.energy-histogram-block { margin-top: 22px; }
+.energy-histogram-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 10px;
+}
+.energy-histogram {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 70px;
+}
+.histogram-bar {
+  position: relative;
+  flex: 1;
+  min-height: 2px;
+  background: linear-gradient(180deg, var(--accent-cyan), rgba(0, 204, 255, 0.15));
+  border-radius: 3px 3px 0 0;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: rgba(18, 18, 20, 0.25); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }

@@ -7,6 +7,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .route("/state", web::get().to(handlers::get_state))
+            .route("/dashboard", web::get().to(handlers::get_dashboard))
             .route("/tick", web::post().to(handlers::tick))
             .route("/reset", web::post().to(handlers::reset))
             .route("/toggle-pause", web::post().to(handlers::toggle_pause))

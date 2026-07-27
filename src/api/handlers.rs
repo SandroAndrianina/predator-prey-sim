@@ -63,6 +63,18 @@ pub struct AutoTickParams {
     steps: Option<usize>,
 }
 
+// === ROUTE GET /api/dashboard ===
+// Sert les 7 KPI + histogramme d'énergie + heatmap de densité, mis en cache
+// à la fin de chaque cycle (calcul non refait à chaque appel : simple lecture).
+// Tant qu'aucun cycle n'est encore terminé, renvoie 204 (pas encore de données).
+pub async fn get_dashboard(data: web::Data<AppState>) -> impl Responder {
+    let simulation = data.simulation.lock().unwrap();
+    match &simulation.dashboard {
+        Some(dashboard) => HttpResponse::Ok().json(dashboard),
+        None => HttpResponse::NoContent().finish(),
+    }
+}
+
 // === ROUTE GET /api/history ===
 // Retourne uniquement l'historique (plus léger)
 pub async fn get_history(data: web::Data<AppState>) -> impl Responder {

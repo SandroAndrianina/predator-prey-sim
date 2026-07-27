@@ -7,16 +7,19 @@
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Bootstrap 5 + Bootswatch Zephyr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/zephyr/bootstrap.min.css">
+    <!-- Bootstrap 5 + Bootswatch Darkly (base sombre, notre CSS ajoute la palette Splunk/sci-fi par-dessus) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/darkly/bootstrap.min.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- D3.js (diagramme de phase + heatmap de densité) -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     
     <!-- Notre thème personnalisé -->
     <link rel="stylesheet" href="/static/css/style.css">
@@ -53,12 +56,12 @@
             <!-- KPI ROW -->
             <div class="kpi-row">
                 <div class="kpi-card">
-                    <div class="kpi-label"><i class="fa-solid fa-circle" style="color:#16a34a;"></i> Proies</div>
-                    <div class="kpi-value" id="kpiPrey" style="color:#16a34a;">--</div>
+                    <div class="kpi-label"><i class="fa-solid fa-circle" style="color:#00ff88;"></i> Proies</div>
+                    <div class="kpi-value" id="kpiPrey" style="color:#00ff88;">--</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label"><i class="fa-solid fa-circle" style="color:#dc2626;"></i> Prédateurs</div>
-                    <div class="kpi-value" id="kpiPredators" style="color:#dc2626;">--</div>
+                    <div class="kpi-label"><i class="fa-solid fa-circle" style="color:#ff0044;"></i> Prédateurs</div>
+                    <div class="kpi-value" id="kpiPredators" style="color:#ff0044;">--</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-label"><i class="fa-solid fa-users"></i> Total</div>
@@ -114,8 +117,8 @@
                         <thead>
                             <tr>
                                 <th># Cycle</th>
-                                <th><i class="fa-solid fa-circle" style="color:#16a34a;"></i> Proies</th>
-                                <th><i class="fa-solid fa-circle" style="color:#dc2626;"></i> Prédateurs</th>
+                                <th><i class="fa-solid fa-circle" style="color:#00ff88;"></i> Proies</th>
+                                <th><i class="fa-solid fa-circle" style="color:#ff0044;"></i> Prédateurs</th>
                                 <th>Total</th>
                             </tr>
                         </thead>
@@ -123,6 +126,38 @@
                             <tr><td colspan="4" class="text-center text-muted">Aucune donnée</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- DASHBOARD AVANCÉ (7 KPI + histogramme, calculés côté Rust     -->
+            <!-- par cycle, via /api/dashboard) + graphiques secondaires D3   -->
+            <!-- ============================================================ -->
+            <div class="charts-row">
+                <!-- Diagramme de phase (D3, calculé côté frontend depuis l'historique déjà transmis) -->
+                <div class="chart-card">
+                    <h3><i class="fa-solid fa-braille"></i> Diagramme de phase</h3>
+                    <div class="d3-chart-container" id="phaseChart"></div>
+                </div>
+
+                <!-- Heatmap de densité (grille agrégée côté Rust, jamais les positions brutes) -->
+                <div class="chart-card">
+                    <h3><i class="fa-solid fa-layer-group"></i> Densité des agents</h3>
+                    <div class="d3-chart-container" id="densityHeatmap"></div>
+                </div>
+            </div>
+
+            <div class="card-surface">
+                <h3 style="font-size:1rem; font-weight:700; margin:0 0 16px;">
+                    <i class="fa-solid fa-gauge-high"></i> KPI avancés
+                </h3>
+                <div class="kpi-adv-grid" id="advancedKpiGrid">
+                    <!-- Rempli dynamiquement par components/dashboard.js -->
+                </div>
+
+                <div class="energy-histogram-block">
+                    <div class="energy-histogram-label">Distribution de l'énergie des prédateurs</div>
+                    <div class="energy-histogram" id="energyHistogram"></div>
                 </div>
             </div>
         </div>
