@@ -1,89 +1,257 @@
 // ============================================================
-// simulation.js - Canvas et rendu des agents
+// simulation.js - Rendu Pixi.js (WebGL) avec interpolation,
+// fond topographique (contain), zoom/pan.
+// Monde : 1000x500 (rectangle), tout visible au zoom initial.
 // ============================================================
 
-import { state, previousAgents, currentAgents, lastSnapshotTime, fetchState } from './api.js';
+import { state, previousAgents, currentAgents, lastSnapshotTime } from './api.js';
 
-const POLL_INTERVAL_MS = 130;
+const SERVER_TICK_MS = 100;
+const WORLD_W = 1000;
+const WORLD_H = 500;
 
-// Références DOM
-const canvas = document.getElementById('simulationCanvas');
-const ctx = canvas.getContext('2d');
+const container = document.getElementById('pixiCanvasContainer');
+
+let app, stage, viewport, backgroundSprite;
+let agentPool = new Map();
+let isInitialized = false;
+let isFirstLoad = true;  // ⬅️ NOUVEAU
+
+// Gestion du zoom/pan
+let zoomLevel = 1;
+const MIN_ZOOM = 0.3;
+const MAX_ZOOM = 3.0;
+let isDragging = false;
+let dragStartX, dragStartY, startVX, startVY;
 
 // ============================================================
-// CANVAS
+// INITIALISATION PIXI
+// ============================================================
+function initPixi() {
+    if (isInitialized) return;
+
+    // On prend des dimensions par défaut (le resize ajustera)
+    const w = container.clientWidth || 800;
+    const h = container.clientHeight || 600;
+
+    app = new PIXI.Application({
+        width: w,
+        height: h,
+        backgroundColor: 0x0a0a0f,
+        antialias: true,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+    });
+
+    container.appendChild(app.view);
+    stage = app.stage;
+
+    // Viewport : on le crée vide, resizeCanvas() le positionnera
+    viewport = new PIXI.Container();
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.scale.set(1, 1);
+    stage.addChild(viewport);
+
+    createTopographicBackground();
+    window.addEventListener('resize', resizeCanvas);
+    setupZoomPan();
+
+    isInitialized = true;
+    
+    // ⬅️ FORCER un resize immédiat APRÈS l'initialisation
+    requestAnimationFrame(() => {
+        resizeCanvas();
+    });
+}
+
+// ============================================================
+// MISE À JOUR DU VIEWPORT (contain)
+// ============================================================
+function updateViewport(containerW, containerH, zoom) {
+    const scaleX = containerW / WORLD_W;
+    const scaleY = containerH / WORLD_H;
+    const scale = Math.min(scaleX, scaleY) * zoom;
+
+    viewport.scale.set(scale, scale);
+    viewport.x = (containerW - WORLD_W * scale) / 2;
+    viewport.y = (containerH - WORLD_H * scale) / 2;
+}
+
+// ============================================================
+// FOND TOPOGRAPHIQUE
+// ============================================================
+function createTopographicBackground() {
+    const texture = PIXI.Texture.from('/static/images/topo.jpg');
+    
+    backgroundSprite = new PIXI.Sprite(texture);
+    backgroundSprite.width = WORLD_W;
+    backgroundSprite.height = WORLD_H;
+    backgroundSprite.alpha = 0.9;
+
+    const worldRatio = WORLD_W / WORLD_H;
+    
+    texture.on('load', () => {
+        const actualW = texture.width;
+        const actualH = texture.height;
+        const actualRatio = actualW / actualH;
+
+        let cW, cH, cX, cY;
+        if (actualRatio > worldRatio) {
+            cH = actualH;
+            cW = actualH * worldRatio;
+            cX = (actualW - cW) / 2;
+            cY = 0;
+        } else {
+            cW = actualW;
+            cH = actualW / worldRatio;
+            cX = 0;
+            cY = (actualH - cH) / 2;
+        }
+
+        const newFrame = new PIXI.Rectangle(cX, cY, cW, cH);
+        const croppedTexture = new PIXI.Texture(texture.baseTexture, newFrame);
+        backgroundSprite.texture = croppedTexture;
+        backgroundSprite.width = WORLD_W;
+        backgroundSprite.height = WORLD_H;
+
+        // ✅ Recalcul après chargement
+        resizeCanvas();
+    });
+
+    texture.on('error', () => {
+        console.warn('⚠️ Image topo non trouvée, fallback');
+        const g = new PIXI.Graphics();
+        g.beginFill(0x0a0a0f);
+        g.drawRect(0, 0, WORLD_W, WORLD_H);
+        g.endFill();
+        for (let i = 0; i < 15; i++) {
+            const r = 15 + i * 14;
+            g.lineStyle(1, 0x00ccff, 0.06 + (i / 15) * 0.12);
+            g.drawCircle(WORLD_W/2, WORLD_H/2, r);
+        }
+        const tex = app.renderer.generateTexture(g);
+        backgroundSprite.texture = tex;
+        backgroundSprite.width = WORLD_W;
+        backgroundSprite.height = WORLD_H;
+
+        resizeCanvas();
+    });
+
+    viewport.addChildAt(backgroundSprite, 0);
+}
+
+// ============================================================
+// REDIMENSIONNEMENT
 // ============================================================
 export function resizeCanvas() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    if (!app) return;
+    
+    // ⬅️ On récupère les dimensions RÉELLES à chaque appel
+    const w = container.clientWidth || 800;
+    const h = container.clientHeight || 600;
+    
+    app.renderer.resize(w, h);
+    updateViewport(w, h, zoomLevel);
 }
-window.addEventListener('resize', resizeCanvas);
 
 // ============================================================
-// DESSIN DES AGENTS
+// ZOOM / PAN
+// ============================================================
+function setupZoomPan() {
+    container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.08 : 0.08;
+        const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoomLevel + delta));
+        if (newZoom !== zoomLevel) {
+            zoomLevel = newZoom;
+            resizeCanvas();
+        }
+    }, { passive: false });
+
+    container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        startVX = viewport.x;
+        startVY = viewport.y;
+        container.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        viewport.x = startVX + dx;
+        viewport.y = startVY + dy;
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        container.style.cursor = 'default';
+    });
+
+    document.getElementById('zoomIn')?.addEventListener('click', () => {
+        zoomLevel = Math.min(MAX_ZOOM, zoomLevel + 0.15);
+        resizeCanvas();
+    });
+
+    document.getElementById('zoomOut')?.addEventListener('click', () => {
+        zoomLevel = Math.max(MIN_ZOOM, zoomLevel - 0.15);
+        resizeCanvas();
+    });
+
+    document.getElementById('resetView')?.addEventListener('click', () => {
+        zoomLevel = 1;
+        viewport.x = 0;
+        viewport.y = 0;
+        resizeCanvas();
+    });
+}
+
+// ============================================================
+// DESSIN DES AGENTS (inchangé)
 // ============================================================
 export function drawAgents(agents) {
-    const w = canvas.width;
-    const h = canvas.height;
-    const margin = 20;
+    if (!app || !viewport) return;
 
-    if (!agents || agents.length === 0) {
-        ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = 'rgba(255,255,255,0.03)';
-        ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = '#8888aa';
-        ctx.font = '16px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Aucun agent', w / 2, h / 2);
-        return;
+    const activeIds = new Set(agents.map(a => a.id));
+    for (const [id, g] of agentPool) {
+        if (!activeIds.has(id)) {
+            viewport.removeChild(g);
+            g.destroy();
+            agentPool.delete(id);
+        }
     }
 
-    const scale = Math.min((w - margin * 2) / 400, (h - margin * 2) / 400);
-    const offsetX = (w - 400 * scale) / 2;
-    const offsetY = (h - 400 * scale) / 2;
-
-    ctx.clearRect(0, 0, w, h);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.03)';
-    ctx.fillRect(0, 0, w, h);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(offsetX, offsetY, 400 * scale, 400 * scale);
-
-    ctx.fillStyle = 'rgba(232,232,240,0.4)';
-    ctx.font = '12px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Zone de simulation', w / 2, offsetY - 8);
-
-    ctx.fillStyle = 'rgba(232,232,240,0.3)';
-    ctx.font = '10px "JetBrains Mono", monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText(`${agents.length} agents`, w - margin, h - margin);
-
     agents.forEach(agent => {
-        const x = Math.max(0, Math.min(400, agent.x));
-        const y = Math.max(0, Math.min(400, agent.y));
+        const id = agent.id;
+        let g = agentPool.get(id);
 
-        const screenX = offsetX + x * scale;
-        const screenY = offsetY + y * scale;
-        const radius = agent.species === 'Prey' ? 4 * scale : 6 * scale;
-        const color = agent.species === 'Prey' ? '#00ff88' : '#ff0044';
-
-        ctx.beginPath();
-        ctx.arc(screenX, screenY, Math.max(radius, 2), 0, 2 * Math.PI);
-        ctx.fillStyle = color;
-        ctx.shadowColor = color;
-        ctx.shadowBlur = 6;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        if (agent.species === 'Predator') {
-            ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
+        if (!g) {
+            g = new PIXI.Graphics();
+            agentPool.set(id, g);
+            viewport.addChild(g);
         }
+
+        const x = Math.max(0, Math.min(WORLD_W, agent.x));
+        const y = Math.max(0, Math.min(WORLD_H, agent.y));
+        const radius = agent.species === 'Prey' ? 4 : 6;
+        const color = agent.species === 'Prey' ? 0x00ff88 : 0xff0044;
+
+        g.clear();
+
+        g.beginFill(color, 0.15);
+        g.drawCircle(x, y, radius * 3);
+        g.endFill();
+
+        g.beginFill(color, 0.95);
+        g.drawCircle(x, y, radius);
+        g.endFill();
+
+        g.beginFill(0xffffff, 0.25);
+        g.drawCircle(x - radius * 0.3, y - radius * 0.3, radius * 0.35);
+        g.endFill();
     });
 }
 
@@ -95,19 +263,26 @@ function lerp(a, b, t) {
 }
 
 export function getInterpolatedAgents() {
-    const t = Math.min(1, (performance.now() - lastSnapshotTime) / POLL_INTERVAL_MS);
+    const elapsed = performance.now() - lastSnapshotTime;
+    const t = Math.min(1, elapsed / SERVER_TICK_MS);
     const result = [];
 
     currentAgents.forEach((cur, id) => {
         const prev = previousAgents.get(id);
         if (prev) {
             result.push({
+                id: id,
                 x: lerp(prev.x, cur.x, t),
                 y: lerp(prev.y, cur.y, t),
                 species: cur.species
             });
         } else {
-            result.push({ x: cur.x, y: cur.y, species: cur.species });
+            result.push({
+                id: id,
+                x: cur.x,
+                y: cur.y,
+                species: cur.species
+            });
         }
     });
 
@@ -118,6 +293,25 @@ export function getInterpolatedAgents() {
 // BOUCLE DE RENDU
 // ============================================================
 export function renderLoop() {
-    drawAgents(getInterpolatedAgents());
-    requestAnimationFrame(renderLoop);
+    if (!isInitialized) initPixi();
+
+    app.ticker.add(() => {
+        if (state.agents && state.agents.length > 0) {
+            drawAgents(getInterpolatedAgents());
+        }
+    });
 }
+
+export function redrawAgents() {
+    if (app) drawAgents(getInterpolatedAgents());
+}
+
+// ⬅️ Initialisation différée : attendre que le DOM soit prêt
+document.addEventListener('DOMContentLoaded', () => {
+    // On attend un frame pour que les dimensions soient stables
+    requestAnimationFrame(() => {
+        if (!isInitialized) initPixi();
+        // Forcer un resize après l'initialisation
+        setTimeout(() => resizeCanvas(), 50);
+    });
+});

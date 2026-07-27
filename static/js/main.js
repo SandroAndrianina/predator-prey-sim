@@ -41,10 +41,8 @@ import { initDensityHeatmap, updateDensityHeatmap } from './components/density-h
 import { initConfigModal } from './components/config-modal.js';
 import { loadSidebar } from './components/sidebar.js';
 
-const POLL_INTERVAL_MS = 130;
-// Le dashboard (7 KPI + histogramme + heatmap) est calculé et mis en cache
-// côté Rust une fois par cycle : pas besoin de le sonder aussi vite que
-// /api/state. Cf. répartition /api/state (tick) vs /api/dashboard (cycle).
+// ⚠️ ALIGNÉ SUR LE TICK SERVEUR (100ms)
+const POLL_INTERVAL_MS = 100;
 const DASHBOARD_POLL_INTERVAL_MS = 10000;
 
 async function refreshDashboard() {
@@ -66,7 +64,7 @@ async function init() {
     const modalHTML = await fetch('/static/templates/config-modal.html').then(r => r.text());
     document.getElementById('configModalContainer').innerHTML = modalHTML;
     
-    // 4. Initialiser le modal (MAINTENANT le HTML est présent)
+    // 4. Initialiser le modal
     initConfigModal();
     
     // 5. Charger l'état initial
@@ -74,7 +72,7 @@ async function init() {
     updateStatsUI();
     updatePauseButton();
 
-    // 5bis. Dashboard (KPI avancés, histogramme, phase, heatmap)
+    // 5bis. Dashboard
     buildAdvancedKpiCards();
     initPhaseChart();
     initDensityHeatmap();
@@ -85,13 +83,11 @@ async function init() {
         initEventListeners();
     }
     
-    // 7. Polling et rendu
+    // 7. Polling (synchronisé avec le serveur)
     setInterval(async () => {
         await fetchState();
         updateStatsUI();
         updatePauseButton();
-        // Le diagramme de phase réutilise state.history (aucun appel serveur
-        // supplémentaire) : on le redessine au même rythme que le reste.
         updatePhaseChart();
     }, POLL_INTERVAL_MS);
 

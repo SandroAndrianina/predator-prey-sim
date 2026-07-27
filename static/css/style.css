@@ -442,3 +442,38 @@ a { text-decoration: none; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ===== PIXI CONTAINER ===== */
+.pixi-container {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-deep);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border);
+  min-height: 500px;
+}
+
+#pixiCanvasContainer {
+  width: 100%;
+  height: 600px;
+  background: var(--bg-deep);
+  cursor: grab;
+}
+#pixiCanvasContainer:active {
+  cursor: grabbing;
+}
+
+/* Contrôles zoom */
+.pixi-container .icon-btn {
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--ink-soft);
+  transition: all 0.2s;
+}
+.pixi-container .icon-btn:hover {
+  background: rgba(0,204,255,0.15);
+  border-color: rgba(0,204,255,0.3);
+  color: var(--accent-cyan);
+}

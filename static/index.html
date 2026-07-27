@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Bootstrap 5 + Bootswatch Darkly (base sombre, notre CSS ajoute la palette Splunk/sci-fi par-dessus) -->
+    <!-- Bootstrap 5 + Bootswatch Darkly -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/darkly/bootstrap.min.css">
     
     <!-- Font Awesome -->
@@ -18,8 +18,11 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- D3.js (diagramme de phase + heatmap de densité) -->
+    <!-- D3.js -->
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    <!-- ✅ PIXI.JS CDN (WebGL) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.4.2/pixi.min.js"></script>
     
     <!-- Notre thème personnalisé -->
     <link rel="stylesheet" href="/static/css/style.css">
@@ -76,31 +79,52 @@
                 </div>
             </div>
 
-            <!-- CHARTS ROW -->
-            <div class="charts-row">
-                <!-- Simulation Canvas -->
-                <div class="chart-card">
-                    <h3><i class="fa-solid fa-people-arrows"></i> Simulation en direct</h3>
-                    <div style="position:relative; width:100%; padding-top:100%;">
-                        <canvas id="simulationCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; border-radius:12px; background: rgba(255,255,255,0.3);"></canvas>
-                    </div>
-                    <div style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap;">
-                        <span class="badge-etat fonctionnel"><i class="fa-solid fa-circle"></i> Proies: <span id="badgePrey">0</span></span>
-                        <span class="badge-etat dysfonctionnel"><i class="fa-solid fa-circle"></i> Prédateurs: <span id="badgePredators">0</span></span>
-                        <span class="badge-etat" style="background:rgba(18,18,20,0.08); color:var(--ink);">
-                            <i class="fa-regular fa-clock"></i> Cycle: <span id="badgeCycle">0</span>
-                        </span>
-                    </div>
+            <!-- ZONE CENTRALE : CANVAS PIXI prend toute la place -->
+            <div class="pixi-container">
+                <div id="pixiCanvasContainer" style="width:100%; height:600px; border-radius:18px; overflow:hidden; background:var(--bg-deep); position:relative;">
+                    <!-- Pixi.js rendra dans ce conteneur -->
                 </div>
+                <!-- Contrôles zoom intégrés -->
+                <div style="position:absolute; bottom:16px; right:24px; display:flex; gap:8px; z-index:10;">
+                    <button id="zoomIn" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-plus"></i></button>
+                    <button id="zoomOut" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-minus"></i></button>
+                    <button id="resetView" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-expand"></i></button>
+                </div>
+            </div>
 
+            <!-- CHARTS ROW (inchangé) -->
+            <div class="charts-row">
                 <!-- Évolution Chart -->
                 <div class="chart-card">
                     <h3><i class="fa-solid fa-chart-line"></i> Évolution de la population</h3>
                     <canvas id="historyChart"></canvas>
                 </div>
+                <!-- Diagramme de phase -->
+                <div class="chart-card">
+                    <h3><i class="fa-solid fa-braille"></i> Diagramme de phase</h3>
+                    <div class="d3-chart-container" id="phaseChart"></div>
+                </div>
             </div>
 
-            <!-- Tableau récapitulatif -->
+            <!-- Heatmap + KPI avancés (inchangés) -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3><i class="fa-solid fa-layer-group"></i> Densité des agents</h3>
+                    <div class="d3-chart-container" id="densityHeatmap"></div>
+                </div>
+                <div class="card-surface">
+                    <h3 style="font-size:1rem; font-weight:700; margin:0 0 16px;">
+                        <i class="fa-solid fa-gauge-high"></i> KPI avancés
+                    </h3>
+                    <div class="kpi-adv-grid" id="advancedKpiGrid"></div>
+                    <div class="energy-histogram-block">
+                        <div class="energy-histogram-label">Distribution de l'énergie des prédateurs</div>
+                        <div class="energy-histogram" id="energyHistogram"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau récapitulatif (inchangé) -->
             <div class="card-surface">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
                     <h3 style="font-size:1rem; font-weight:700; margin:0;">
@@ -128,53 +152,14 @@
                     </table>
                 </div>
             </div>
-
-            <!-- ============================================================ -->
-            <!-- DASHBOARD AVANCÉ (7 KPI + histogramme, calculés côté Rust     -->
-            <!-- par cycle, via /api/dashboard) + graphiques secondaires D3   -->
-            <!-- ============================================================ -->
-            <div class="charts-row">
-                <!-- Diagramme de phase (D3, calculé côté frontend depuis l'historique déjà transmis) -->
-                <div class="chart-card">
-                    <h3><i class="fa-solid fa-braille"></i> Diagramme de phase</h3>
-                    <div class="d3-chart-container" id="phaseChart"></div>
-                </div>
-
-                <!-- Heatmap de densité (grille agrégée côté Rust, jamais les positions brutes) -->
-                <div class="chart-card">
-                    <h3><i class="fa-solid fa-layer-group"></i> Densité des agents</h3>
-                    <div class="d3-chart-container" id="densityHeatmap"></div>
-                </div>
-            </div>
-
-            <div class="card-surface">
-                <h3 style="font-size:1rem; font-weight:700; margin:0 0 16px;">
-                    <i class="fa-solid fa-gauge-high"></i> KPI avancés
-                </h3>
-                <div class="kpi-adv-grid" id="advancedKpiGrid">
-                    <!-- Rempli dynamiquement par components/dashboard.js -->
-                </div>
-
-                <div class="energy-histogram-block">
-                    <div class="energy-histogram-label">Distribution de l'énergie des prédateurs</div>
-                    <div class="energy-histogram" id="energyHistogram"></div>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- TEMPLATES (chargés dynamiquement) -->
-    <!-- ============================================================ -->
+    <!-- TEMPLATES -->
     <div id="configModalContainer"></div>
 
-    <!-- ============================================================ -->
     <!-- SCRIPTS -->
-    <!-- ============================================================ -->
-    
-    <!-- 1. Bootstrap (dépendance) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <script type="module" src="/static/js/main.js" defer></script>
 </body>
 </html>

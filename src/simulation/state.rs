@@ -4,8 +4,12 @@ use super::config::SimulationConfig;
 
 // Taille de la grille de heatmap (20x20, cf. spécification).
 const HEATMAP_GRID_SIZE: usize = 20;
-const WORLD_W: f64 = 400.0;
-const WORLD_H: f64 = 400.0;
+const WORLD_W: f64 = 1000.0;
+const WORLD_H: f64 = 500.0;
+
+const WORLD_W_32: f32 = 1000.0;
+const WORLD_H_32: f32 = 500.0;
+
 const ENERGY_HISTOGRAM_BINS: usize = 10;
 // Nombre de cycles conservés dans l'historique renvoyé par /api/dashboard
 // (sert au frontend pour les tendances / min / max / moyenne des tooltips).
@@ -90,7 +94,7 @@ impl SimulationState {
 
     pub fn with_config(config: &SimulationConfig) -> Self {
         let population = engine::spawn_initial_population(
-            0.0, 0.0, 400.0, 400.0,
+            0.0, 0.0, WORLD_W_32, WORLD_H_32,
             config.initial_prey,
             config.initial_predators,
         );
@@ -295,7 +299,7 @@ impl SimulationState {
     // Réinitialiser la simulation
     pub fn reset(&mut self) {
         self.population = engine::spawn_initial_population(
-            0.0, 0.0, 400.0, 400.0,
+            0.0, 0.0, WORLD_W_32, WORLD_H_32,
             self.config.initial_prey,
             self.config.initial_predators,
         );

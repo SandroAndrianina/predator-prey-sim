@@ -39,7 +39,7 @@ impl Agent {
     }
 
     pub fn advance(&mut self, dt: f64) {
-        self.x = (self.x + self.vx * dt).clamp(0.0, 400.0);
-        self.y = (self.y + self.vy * dt).clamp(0.0, 400.0);
+        self.x = (self.x + self.vx * dt).clamp(0.0, 1000.0);
+        self.y = (self.y + self.vy * dt).clamp(0.0, 500.0);
     }
 }
