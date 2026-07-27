@@ -39,41 +39,37 @@
 
         <!-- MAIN CONTENT -->
         <div class="app-main">
-            <!-- TOPBAR -->
-            <header class="app-topbar">
-                <div>
-                    <p class="welcome">
-                        Simulation Proie-Prédateur
-                        <span id="cycleDisplay">Cycle 0 · Tick 0</span>
-                    </p>
+            <!-- TOPBAR (3 KPI centrés + recherche/boutons à droite) -->
+            <div class="topbar-wrapper">
+                <div class="topbar-left">
+                    <!-- Les 3 KPI centrés -->
+                    <div class="kpi-compact" id="kpiPreyCompact">
+                        <span class="kpi-compact-label"><i class="fa-solid fa-circle" style="color:#00ff88;"></i> Proies</span>
+                        <span class="kpi-compact-value" style="color:#00ff88;" id="kpiPrey">--</span>
+                    </div>
+                    <div class="kpi-compact" id="kpiPredatorsCompact">
+                        <span class="kpi-compact-label"><i class="fa-solid fa-circle" style="color:#ff0044;"></i> Prédateurs</span>
+                        <span class="kpi-compact-value" style="color:#ff0044;" id="kpiPredators">--</span>
+                    </div>
+                    <div class="kpi-compact" id="kpiTotalCompact">
+                        <span class="kpi-compact-label"><i class="fa-solid fa-users"></i> Total</span>
+                        <span class="kpi-compact-value" id="kpiTotal">--</span>
+                    </div>
                 </div>
-                <div class="topbar-search d-none d-md-block">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Rechercher...">
-                </div>
-                <div class="topbar-actions">
-                    <span class="icon-btn" id="toggleAutoPlay" title="Auto-play">
-                        <i class="fa-solid fa-play"></i>
-                    </span>
-                    <span class="icon-btn" id="stepForward" title="Avancer d'un tick">
-                        <i class="fa-solid fa-forward-step"></i>
-                    </span>
-                </div>
-            </header>
 
-            <!-- KPI ROW (3 KPI hauts) -->
-            <div class="kpi-row">
-                <div class="kpi-card">
-                    <div class="kpi-label"><i class="fa-solid fa-circle" style="color:#00ff88;"></i> Proies</div>
-                    <div class="kpi-value" id="kpiPrey" style="color:#00ff88;">--</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label"><i class="fa-solid fa-circle" style="color:#ff0044;"></i> Prédateurs</div>
-                    <div class="kpi-value" id="kpiPredators" style="color:#ff0044;">--</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label"><i class="fa-solid fa-users"></i> Total</div>
-                    <div class="kpi-value" id="kpiTotal">--</div>
+                <div class="topbar-right">
+                    <div class="topbar-search d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Rechercher...">
+                    </div>
+                    <div class="topbar-actions">
+                        <span class="icon-btn" id="toggleAutoPlay" title="Auto-play">
+                            <i class="fa-solid fa-play"></i>
+                        </span>
+                        <span class="icon-btn" id="stepForward" title="Avancer d'un tick">
+                            <i class="fa-solid fa-forward-step"></i>
+                        </span>
+                    </div>
                 </div>
             </div>
 
