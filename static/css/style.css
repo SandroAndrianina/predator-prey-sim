@@ -393,26 +393,7 @@ a { text-decoration: none; }
 
 /* Tooltip léger en CSS pur (pas de dépendance JS supplémentaire) */
 [data-tooltip] { cursor: help; }
-[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 8px);
-  transform: translateX(-50%);
-  background: #05050a;
-  color: var(--ink);
-  border: 1px solid var(--border);
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  font-size: 0.7rem;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
-  box-shadow: var(--shadow-pop);
-  z-index: 20;
-}
-[data-tooltip]:hover::after { opacity: 1; }
+
 
 /* ===== HISTOGRAMME D'ÉNERGIE (mini, 10 bins) ===== */
 .energy-histogram-block { margin-top: 22px; }
