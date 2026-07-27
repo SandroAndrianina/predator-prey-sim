@@ -477,3 +477,119 @@ a { text-decoration: none; }
   border-color: rgba(0,204,255,0.3);
   color: var(--accent-cyan);
 }
+
+/* ==========================================================================
+   HORLOGE HUD (overlay sur la simulation)
+   ========================================================================== */
+
+#hudClock {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 10, 15, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 8px 16px 8px 12px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  pointer-events: none; /* Laisser les clics traverser */
+}
+
+.hud-clock-circle {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+.hud-clock-circle svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hud-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.hud-cycle {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #00ccff;
+  letter-spacing: 0.04em;
+}
+.hud-cycle span {
+  color: #e8e8f0;
+}
+.hud-tick {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #8888aa;
+}
+.hud-tick span {
+  color: #c4c4d4;
+}
+
+/* Animation de l'aiguille (rotation) */
+#clockHand {
+  transform-origin: 30px 30px;
+  transition: transform 0.2s ease;
+}
+
+#clockArc {
+  transition: stroke-dashoffset 0.2s ease;
+}
+
+/* ==========================================================================
+   KPI AVANCÉS (réorganisation en bas à droite)
+   ========================================================================== */
+
+#advancedKpiPanel {
+  height: 100%;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-adv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  flex: 1;
+}
+
+/* Ajustement des cartes KPI avancées pour qu'elles soient plus compactes */
+.kpi-adv-card {
+  padding: 10px 14px;
+}
+
+.kpi-adv-value {
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+}
+
+.kpi-adv-label {
+  font-size: 0.65rem;
+}
+
+.kpi-adv-bar {
+  height: 3px;
+}
+
+/* ==========================================================================
+   ÉNERGIE HISTOGRAMME
+   ========================================================================== */
+
+.energy-histogram-block {
+  margin-top: 12px;
+}
+
+.energy-histogram {
+  height: 50px;
+  gap: 3px;
+}

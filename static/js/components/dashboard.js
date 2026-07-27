@@ -14,6 +14,9 @@
 
 import { dashboardState } from '../core/dashboard-api.js';
 
+// Récupérer tippy depuis window (chargé via CDN)
+const tippy = window.tippy;
+
 const TREND_WINDOW_SIZE = 10;
 
 // Définition des 7 KPI. `key` correspond au champ CycleKpis renvoyé
@@ -63,6 +66,43 @@ export function buildAdvancedKpiCards() {
     grid.dataset.built = 'true';
 }
 
+// Initialise les tooltips Tippy.js sur toutes les cartes KPI
+function initTooltips() {
+    if (!tippy) {
+        console.warn('Tippy.js non chargé');
+        return;
+    }
+
+    document.querySelectorAll('.kpi-adv-card').forEach(card => {
+        // Éviter de recréer les tooltips à chaque mise à jour
+        if (card._tippy) return;
+
+        const content = card.dataset.tooltip || 'Aucune donnée';
+        card._tippy = tippy(card, {
+            content: content,
+            theme: 'dark',
+            placement: 'top',
+            animation: 'scale',
+            delay: [200, 0],
+            maxWidth: 280,
+            interactive: false,
+            arrow: true,
+        });
+    });
+}
+
+// Met à jour le contenu des tooltips (utile si les données changent)
+function updateTooltips() {
+    if (!tippy) return;
+
+    document.querySelectorAll('.kpi-adv-card').forEach(card => {
+        const content = card.dataset.tooltip || 'Aucune donnée';
+        if (card._tippy) {
+            card._tippy.setContent(content);
+        }
+    });
+}
+
 export function updateAdvancedKpis() {
     const history = dashboardState.history;
     if (!dashboardState.available || history.length === 0) return;
@@ -107,6 +147,12 @@ export function updateAdvancedKpis() {
             `Max ${formatValue(max, def.decimals, def.unit)} · Min ${formatValue(min, def.decimals, def.unit)} · Moy ${formatValue(avg, def.decimals, def.unit)} (${windowValues.length} derniers cycles)`
         );
     });
+
+    // Initialiser les tooltips (une seule fois)
+    initTooltips();
+
+    // Mettre à jour le contenu des tooltips
+    updateTooltips();
 }
 
 export function updateEnergyHistogram() {

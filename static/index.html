@@ -21,8 +21,13 @@
     <!-- D3.js -->
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 
-    <!-- ✅ PIXI.JS CDN (WebGL) -->
+    <!-- Pixi.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.4.2/pixi.min.js"></script>
+
+    <!-- Tippy.js (tooltips) -->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/dark.css" />
     
     <!-- Notre thème personnalisé -->
     <link rel="stylesheet" href="/static/css/style.css">
@@ -56,7 +61,7 @@
                 </div>
             </header>
 
-            <!-- KPI ROW -->
+            <!-- KPI ROW (3 KPI hauts) -->
             <div class="kpi-row">
                 <div class="kpi-card">
                     <div class="kpi-label"><i class="fa-solid fa-circle" style="color:#00ff88;"></i> Proies</div>
@@ -70,21 +75,32 @@
                     <div class="kpi-label"><i class="fa-solid fa-users"></i> Total</div>
                     <div class="kpi-value" id="kpiTotal">--</div>
                 </div>
-                <div class="kpi-card">
-                    <div class="kpi-label"><i class="fa-regular fa-clock"></i> Cycle</div>
-                    <div class="kpi-value" id="kpiCycle" style="font-size:1.5rem;">0</div>
-                    <div style="font-size:0.7rem; opacity:0.4; margin-top:4px;">
-                        Tick <span id="kpiTick">0</span>
-                    </div>
-                </div>
             </div>
 
-            <!-- ZONE CENTRALE : CANVAS PIXI prend toute la place -->
+            <!-- ZONE SIMULATION (avec horloge HUD en overlay) -->
             <div class="pixi-container">
                 <div id="pixiCanvasContainer" style="width:100%; height:600px; border-radius:18px; overflow:hidden; background:var(--bg-deep); position:relative;">
                     <!-- Pixi.js rendra dans ce conteneur -->
                 </div>
-                <!-- Contrôles zoom intégrés -->
+                
+                <!-- HORLOGE HUD (overlay en haut à droite) -->
+                <div id="hudClock">
+                    <div class="hud-clock-circle">
+                        <svg viewBox="0 0 60 60">
+                            <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                            <circle cx="30" cy="30" r="26" fill="none" stroke="#00ccff" stroke-width="3" 
+                                    stroke-dasharray="163.36" stroke-dashoffset="163.36" id="clockArc"/>
+                            <circle cx="30" cy="30" r="2" fill="#00ccff"/>
+                            <line x1="30" y1="30" x2="30" y2="10" stroke="#00ccff" stroke-width="2" stroke-linecap="round" id="clockHand"/>
+                        </svg>
+                    </div>
+                    <div class="hud-info">
+                        <div class="hud-cycle">Cycle <span id="hudCycle">0</span></div>
+                        <div class="hud-tick">Tick <span id="hudTick">0</span></div>
+                    </div>
+                </div>
+
+                <!-- Contrôles zoom -->
                 <div style="position:absolute; bottom:16px; right:24px; display:flex; gap:8px; z-index:10;">
                     <button id="zoomIn" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-plus"></i></button>
                     <button id="zoomOut" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-minus"></i></button>
@@ -92,35 +108,37 @@
                 </div>
             </div>
 
-            <!-- CHARTS ROW (inchangé) -->
+            <!-- CHARTS ROW (graphique d'évolution + KPI avancés) -->
             <div class="charts-row">
-                <!-- Évolution Chart -->
+                <!-- Évolution Chart (gauche) -->
                 <div class="chart-card">
                     <h3><i class="fa-solid fa-chart-line"></i> Évolution de la population</h3>
                     <canvas id="historyChart"></canvas>
                 </div>
-                <!-- Diagramme de phase -->
-                <div class="chart-card">
-                    <h3><i class="fa-solid fa-braille"></i> Diagramme de phase</h3>
-                    <div class="d3-chart-container" id="phaseChart"></div>
+                <!-- KPI Avancés + Histogramme (droite) -->
+                <div class="card-surface" id="advancedKpiPanel">
+                    <h3 style="font-size:1rem; font-weight:700; margin:0 0 16px;">
+                        <i class="fa-solid fa-gauge-high"></i> KPI avancés
+                    </h3>
+                    <div class="kpi-adv-grid" id="advancedKpiGrid">
+                        <!-- Rempli dynamiquement par components/dashboard.js -->
+                    </div>
+                    <div class="energy-histogram-block">
+                        <div class="energy-histogram-label">Distribution de l'énergie des prédateurs</div>
+                        <div class="energy-histogram" id="energyHistogram"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Heatmap + KPI avancés (inchangés) -->
+            <!-- Heatmap + Diagramme de phase (2ème ligne de graphiques) -->
             <div class="charts-row">
                 <div class="chart-card">
                     <h3><i class="fa-solid fa-layer-group"></i> Densité des agents</h3>
                     <div class="d3-chart-container" id="densityHeatmap"></div>
                 </div>
-                <div class="card-surface">
-                    <h3 style="font-size:1rem; font-weight:700; margin:0 0 16px;">
-                        <i class="fa-solid fa-gauge-high"></i> KPI avancés
-                    </h3>
-                    <div class="kpi-adv-grid" id="advancedKpiGrid"></div>
-                    <div class="energy-histogram-block">
-                        <div class="energy-histogram-label">Distribution de l'énergie des prédateurs</div>
-                        <div class="energy-histogram" id="energyHistogram"></div>
-                    </div>
+                <div class="chart-card">
+                    <h3><i class="fa-solid fa-braille"></i> Diagramme de phase</h3>
+                    <div class="d3-chart-container" id="phaseChart"></div>
                 </div>
             </div>
 
