@@ -36,12 +36,14 @@ import {
 } from './components/dashboard.js';
 
 import { initPhaseChart, updatePhaseChart } from './components/phase-chart.js';
-import { initDensityHeatmap, updateDensityHeatmap } from './components/density-heatmap.js';
+import { initDensityHeatmap, updateDensityHeatmap } from './core/density-heatmap.js';
 
 import { initConfigModal } from './components/config-modal.js';
 import { loadSidebar } from './components/sidebar.js';
 
-// ⚠️ ALIGNÉ SUR LE TICK SERVEUR (100ms)
+// ✅ Importer UNIQUEMENT ce dont on a besoin
+import { initTabs, isTabCollapsed } from './components/tabs.js';
+
 const POLL_INTERVAL_MS = 100;
 const DASHBOARD_POLL_INTERVAL_MS = 10000;
 
@@ -49,8 +51,13 @@ async function refreshDashboard() {
     await fetchDashboard();
     updateAdvancedKpis();
     updateEnergyHistogram();
-    updatePhaseChart();
-    updateDensityHeatmap();
+    
+    // ✅ Les deux graphiques sont toujours visibles (empilés)
+    // On ne met à jour que si le panneau n'est pas rétracté
+    if (!isTabCollapsed()) {
+        updatePhaseChart();
+        updateDensityHeatmap();
+    }
 }
 
 async function init() {
@@ -72,23 +79,34 @@ async function init() {
     updateStatsUI();
     updatePauseButton();
 
-    // 5bis. Dashboard
+    // 6. Dashboard
     buildAdvancedKpiCards();
+    
+    // ✅ Initialiser les graphiques (Phase et Densité)
     initPhaseChart();
     initDensityHeatmap();
+    
+    // ✅ Initialiser les onglets (panneau rétractable)
+    initTabs();
+    
     await refreshDashboard();
     
-    // 6. Event listeners
+    // 7. Event listeners
     if (document.getElementById('toggleAutoPlay')) {
         initEventListeners();
     }
     
-    // 7. Polling (synchronisé avec le serveur)
+    // 8. Polling
     setInterval(async () => {
         await fetchState();
         updateStatsUI();
         updatePauseButton();
-        updatePhaseChart();
+        
+        // ✅ Mise à jour des deux graphiques si le panneau est ouvert
+        if (!isTabCollapsed()) {
+            updatePhaseChart();
+            updateDensityHeatmap();
+        }
     }, POLL_INTERVAL_MS);
 
     setInterval(refreshDashboard, DASHBOARD_POLL_INTERVAL_MS);
@@ -100,6 +118,8 @@ async function init() {
 document.addEventListener('DOMContentLoaded', init);
 window.addEventListener('resize', () => {
     resizeCanvas();
-    updatePhaseChart();
-    updateDensityHeatmap();
+    if (!isTabCollapsed()) {
+        updatePhaseChart();
+        updateDensityHeatmap();
+    }
 });

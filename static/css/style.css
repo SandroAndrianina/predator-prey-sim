@@ -1,14 +1,14 @@
 /* ==========================================================================
-   THEME.CSS — Dashboard sombre "salle de contrôle" (inspiré Splunk)
+   THEME.CSS — Dashboard sombre "salle de contrôle"
    Palette et typographie : cf. redesign.md v2.0
    ========================================================================== */
 
 :root {
   /* --- Fond / structure --- */
   --bg-deep: #0a0a0f;
-  --ink: #d1d1d1;        /* texte principal */
+  --ink: #e8e8f0;
   --ink-soft: #c4c4d4;
-  --muted: #8888aa;      /* texte secondaire */
+  --muted: #8888aa;
   --border: rgba(255, 255, 255, 0.08);
   --border-soft: rgba(255, 255, 255, 0.06);
 
@@ -17,10 +17,10 @@
   --glass-strong: rgba(255, 255, 255, 0.07);
   --glass-blur: 18px;
 
-  /* --- Couleurs sémantiques (cf. palette redesign.md) --- */
-  --prey: #00ff88;         /* proies : vert néon */
+  /* --- Couleurs sémantiques --- */
+  --prey: #00ff88;
   --prey-bg: rgba(0, 255, 136, 0.12);
-  --predator: #ff0044;     /* prédateurs : rouge sang */
+  --predator: #ff0044;
   --predator-bg: rgba(255, 0, 68, 0.12);
   --accent-cyan: #00ccff;
   --accent-violet: #8800ff;
@@ -44,7 +44,7 @@ html, body {
   background: var(--bg-deep);
 }
 
-/* Fond sombre profond (remplace le dégradé glassmorphism clair) */
+/* Fond sombre avec dégradés */
 body::before {
   content: "";
   position: fixed;
@@ -164,267 +164,130 @@ a { text-decoration: none; }
   border-top: 1px solid var(--border-soft);
 }
 
-/* ===== TOPBAR ===== */
-.app-topbar {
-  background: var(--glass-strong);
-  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 16px 22px;
+/* ==========================================================================
+   TOPBAR COMPACTE (3 KPI centrés + recherche/boutons)
+   ========================================================================== */
+
+.topbar-wrapper {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  flex-wrap: wrap;
+  padding: 4px 0;
+  margin-bottom: 8px;
 }
 
-.app-topbar .welcome {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-weight: 700;
-  font-size: 1.15rem;
-  margin: 0;
-  color: var(--ink);
-}
-.app-topbar .welcome span { color: var(--muted); font-weight: 500; font-size: 0.85rem; display: block; font-family: "JetBrains Mono", monospace; }
-
-.app-topbar .topbar-search {
+.topbar-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
   flex: 1;
-  max-width: 340px;
-  position: relative;
 }
-.app-topbar .topbar-search input {
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* KPI compacts (centrés) */
+.kpi-compact {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+}
+
+.kpi-compact-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-compact-value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.2;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Recherche (droite) */
+.topbar-search {
+  position: relative;
+  flex: 0 1 220px;
+}
+.topbar-search input {
   width: 100%;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
   color: var(--ink);
   border-radius: 999px;
-  padding: 9px 16px 9px 38px;
-  font-size: 0.88rem;
+  padding: 6px 14px 6px 32px;
+  font-size: 0.85rem;
 }
-.app-topbar .topbar-search input::placeholder { color: var(--muted); }
-.app-topbar .topbar-search i {
+.topbar-search input::placeholder { color: var(--muted); }
+.topbar-search i {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
 }
 
-.app-topbar .topbar-actions { display: flex; align-items: center; gap: 10px; }
+/* Boutons play/step (droite) */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .icon-btn {
-  width: 40px; height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
-  display: inline-flex; align-items: center; justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--ink-soft);
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 0.9rem;
 }
 .icon-btn:hover { background: rgba(255, 255, 255, 0.09); }
 .icon-btn.active { background: rgba(0, 204, 255, 0.15); color: var(--accent-cyan); border-color: rgba(0, 204, 255, 0.4); }
 
-.avatar-badge {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: var(--accent-cyan);
-  color: #04121a;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 0.85rem;
+/* ==========================================================================
+   ZONE SIMULATION + PANEL GRAPHIQUES (côte à côte)
+   ========================================================================== */
+
+.simulation-row {
+  display: flex;
+  gap: 18px;
+  align-items: stretch;
 }
 
-/* ===== KPI CARDS (haut, 3 principaux) ===== */
-.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
-.kpi-card {
-  background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 20px 22px;
-}
-.kpi-card .kpi-label { color: var(--muted); font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; }
-.kpi-card .kpi-value { font-size: 2rem; font-weight: 800; line-height: 1; }
-
-/* ===== CHARTS ===== */
-.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-@media (max-width: 991.98px) { .charts-row { grid-template-columns: 1fr; } }
-
-.chart-card {
-  background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 20px 22px;
-}
-.chart-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; color: var(--ink); }
-.chart-card h3 i { color: var(--accent-cyan); margin-right: 6px; }
-
-/* ===== D3 CHARTS (phase / heatmap) ===== */
-.d3-chart-container {
-  position: relative;
-  width: 100%;
-  height: 260px;
-}
-.d3-chart-container svg { display: block; }
-
-.phase-axis text { fill: var(--muted); font-size: 0.68rem; font-family: "JetBrains Mono", monospace; }
-.phase-axis path, .phase-axis line { stroke: var(--border); }
-
-.phase-point { fill: var(--accent-cyan); fill-opacity: 0.55; }
-.phase-point-current {
-  fill: var(--prey);
-  fill-opacity: 1;
-  filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.9));
-}
-
-/* ===== BADGES ===== */
-.badge-etat {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 12px; border-radius: 999px; font-size: 0.76rem; font-weight: 700;
-}
-.badge-etat.fonctionnel { background: var(--prey-bg); color: var(--prey); }
-.badge-etat.dysfonctionnel { background: var(--predator-bg); color: var(--predator); }
-
-/* ===== TABLE ===== */
-.table-modern {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-}
-.table-modern thead th {
-  text-align: left;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  font-weight: 700;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border-soft);
-}
-.table-modern tbody td {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border-soft);
-  vertical-align: middle;
-}
-.table-modern tbody tr:last-child td { border-bottom: none; }
-.table-modern tbody tr:hover { background: rgba(255, 255, 255, 0.04); }
-
-.card-surface {
-  background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: 22px;
+.simulation-row .pixi-container {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ==========================================================================
-   KPI AVANCÉS (7, bas de page) — valeurs déjà calculées côté Rust,
-   ce bloc ne fait que la mise en forme (flèche, mini-barre, tooltip).
+   PIXI CONTAINER (simulation)
    ========================================================================== */
-.kpi-adv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 14px;
-}
 
-.kpi-adv-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-.kpi-adv-card:hover {
-  border-color: rgba(0, 204, 255, 0.35);
-  background: rgba(0, 204, 255, 0.04);
-}
-
-.kpi-adv-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.kpi-adv-icon { color: var(--accent-cyan); font-size: 0.85rem; }
-.kpi-adv-label {
-  flex: 1;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-.kpi-adv-trend { font-size: 0.8rem; font-weight: 700; }
-.kpi-adv-trend.trend-up { color: var(--prey); }
-.kpi-adv-trend.trend-down { color: var(--predator); }
-.kpi-adv-trend.trend-flat { color: var(--muted); }
-
-.kpi-adv-value {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.kpi-adv-bar {
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-}
-.kpi-adv-bar-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--accent-cyan);
-  border-radius: 999px;
-  transition: width 0.3s ease;
-}
-.kpi-adv-bar-fill.bar-negative { background: var(--predator); }
-
-/* Tooltip léger en CSS pur (pas de dépendance JS supplémentaire) */
-[data-tooltip] { cursor: help; }
-
-
-/* ===== HISTOGRAMME D'ÉNERGIE (mini, 10 bins) ===== */
-.energy-histogram-block { margin-top: 22px; }
-.energy-histogram-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin-bottom: 10px;
-}
-.energy-histogram {
-  display: flex;
-  align-items: flex-end;
-  gap: 5px;
-  height: 70px;
-}
-.histogram-bar {
-  position: relative;
-  flex: 1;
-  min-height: 2px;
-  background: linear-gradient(180deg, var(--accent-cyan), rgba(0, 204, 255, 0.15));
-  border-radius: 3px 3px 0 0;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-
-/* ===== PIXI CONTAINER ===== */
 .pixi-container {
   position: relative;
   width: 100%;
@@ -446,7 +309,7 @@ a { text-decoration: none; }
   cursor: grabbing;
 }
 
-/* Contrôles zoom */
+/* Contrôles zoom (overlay) */
 .pixi-container .icon-btn {
   background: rgba(0,0,0,0.7);
   border: 1px solid rgba(255,255,255,0.1);
@@ -478,12 +341,12 @@ a { text-decoration: none; }
   border-radius: 40px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  pointer-events: none; /* Laisser les clics traverser */
+  pointer-events: none;
 }
 
 .hud-clock-circle {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
 }
 .hud-clock-circle svg {
@@ -496,19 +359,21 @@ a { text-decoration: none; }
   flex-direction: column;
   line-height: 1.2;
 }
+
 .hud-cycle {
   font-family: "JetBrains Mono", monospace;
-  font-size: 1.75rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: #00ccff;
   letter-spacing: 0.04em;
 }
 .hud-cycle span {
   color: #e8e8f0;
 }
+
 .hud-tick {
   font-family: "JetBrains Mono", monospace;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: #8888aa;
 }
@@ -516,18 +381,206 @@ a { text-decoration: none; }
   color: #c4c4d4;
 }
 
-/* Animation de l'aiguille (rotation) */
 #clockHand {
   transform-origin: 30px 30px;
   transition: transform 0.2s ease;
 }
-
 #clockArc {
   transition: stroke-dashoffset 0.2s ease;
 }
 
 /* ==========================================================================
-   KPI AVANCÉS (réorganisation en bas à droite)
+   PANEL DES GRAPHIQUES EMPILÉS (Phase + Densité)
+   ========================================================================== */
+
+.tab-container {
+  display: flex;
+  flex-direction: column;
+  transition: flex 0.3s ease, min-width 0.3s ease, max-width 0.3s ease;
+  flex: 0 0 340px;
+  min-width: 280px;
+  max-width: 420px;
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+}
+
+.tab-container.collapsed {
+  flex: 0 0 48px;
+  min-width: 48px;
+  max-width: 48px;
+  padding: 8px;
+}
+
+.tab-container.collapsed .tab-body {
+  display: none;
+}
+
+.tab-container.collapsed .tab-title {
+  display: none;
+}
+
+.tab-container.collapsed .tab-header {
+  justify-content: center;
+}
+
+.tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tab-title {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.tab-btn.tab-toggle {
+  padding: 4px 8px;
+  font-size: 1rem;
+  color: var(--muted);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tab-btn.tab-toggle:hover {
+  color: var(--accent-cyan);
+  background: rgba(0, 204, 255, 0.1);
+}
+
+.tab-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.graph-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.graph-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.graph-label i {
+  color: var(--accent-cyan);
+  margin-right: 4px;
+}
+
+.d3-chart-container {
+  flex: 1;
+  min-height: 120px;
+  width: 100%;
+}
+.d3-chart-container svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive : sur petit écran, le panel passe en dessous */
+@media (max-width: 991.98px) {
+  .simulation-row {
+    flex-direction: column;
+  }
+  .simulation-row .tab-container {
+    flex: 1 1 auto;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+/* ==========================================================================
+   CHARTS (graphiques)
+   ========================================================================== */
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 991.98px) {
+  .charts-row { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px 22px;
+}
+
+.chart-card h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--ink);
+}
+.chart-card h3 i {
+  color: var(--accent-cyan);
+  margin-right: 6px;
+}
+
+/* ==========================================================================
+   D3 CHARTS (phase / heatmap)
+   ========================================================================== */
+
+.d3-chart-container {
+  position: relative;
+  width: 100%;
+  height: 260px;
+}
+.d3-chart-container svg {
+  display: block;
+}
+
+.phase-axis text {
+  fill: var(--muted);
+  font-size: 0.68rem;
+  font-family: "JetBrains Mono", monospace;
+}
+.phase-axis path, .phase-axis line {
+  stroke: var(--border);
+}
+
+.phase-point {
+  fill: var(--accent-cyan);
+  fill-opacity: 0.55;
+}
+.phase-point-current {
+  fill: var(--prey);
+  fill-opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.9));
+}
+
+/* ==========================================================================
+   KPI AVANCÉS (7 + histogramme)
    ========================================================================== */
 
 #advancedKpiPanel {
@@ -544,136 +597,179 @@ a { text-decoration: none; }
   flex: 1;
 }
 
-/* Ajustement des cartes KPI avancées pour qu'elles soient plus compactes */
 .kpi-adv-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   padding: 10px 14px;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
+.kpi-adv-card:hover {
+  border-color: rgba(0, 204, 255, 0.35);
+  background: rgba(0, 204, 255, 0.04);
+}
+
+.kpi-adv-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.kpi-adv-icon {
+  color: var(--accent-cyan);
+  font-size: 0.8rem;
+}
+.kpi-adv-label {
+  flex: 1;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.kpi-adv-trend {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.kpi-adv-trend.trend-up { color: var(--prey); }
+.kpi-adv-trend.trend-down { color: var(--predator); }
+.kpi-adv-trend.trend-flat { color: var(--muted); }
 
 .kpi-adv-value {
   font-size: 1.2rem;
+  font-weight: 700;
   margin-bottom: 6px;
-}
-
-.kpi-adv-label {
-  font-size: 0.65rem;
 }
 
 .kpi-adv-bar {
   height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.kpi-adv-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent-cyan);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.kpi-adv-bar-fill.bar-negative {
+  background: var(--predator);
+}
+
+/* Tooltip : Tippy.js uniquement, plus de CSS natif */
+[data-tooltip] {
+  cursor: help;
 }
 
 /* ==========================================================================
-   ÉNERGIE HISTOGRAMME
+   HISTOGRAMME D'ÉNERGIE (mini)
    ========================================================================== */
 
 .energy-histogram-block {
   margin-top: 12px;
 }
-
-.energy-histogram {
-  height: 50px;
-  gap: 3px;
-}
-
-/* ==========================================================================
-   TOPBAR COMPACTE (KPI intégrés)
-   ========================================================================== */
-
-/* ==========================================================================
-   TOPBAR (3 KPI centrés, boutons à droite, pas de container)
-   ========================================================================== */
-
-.topbar-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 4px 0;
-  margin-bottom: 8px;
-}
-
-.topbar-left {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  flex: 1;
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-/* KPI compacts (centrés) */
-.kpi-compact {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.03);
-  border: 2.1px solid var(--border);
-}
-
-.kpi-compact-label {
-  font-size: 0.9rem;
+.energy-histogram-label {
+  font-size: 0.65rem;
   font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
 }
-
-.kpi-compact-value {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 2.2rem;
-  font-weight: 700;
-  line-height: 1.2;
-  min-width: 28px;
-  text-align: right;
-}
-
-/* Recherche (droite) */
-.topbar-search {
-  position: relative;
-  flex: 0 1 220px;
-}
-.topbar-search input {
-  width: 100%;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--ink);
-  border-radius: 999px;
-  padding: 5px 12px 5px 30px;
-  font-size: 1rem;
-}
-.topbar-search input::placeholder { color: var(--muted); }
-.topbar-search i {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  font-size: 0.7rem;
-}
-
-/* Boutons (droite) */
-/* Boutons (droite) — forcer l'affichage horizontal */
-.topbar-actions {
+.energy-histogram {
   display: flex;
-  flex-direction: row !important;  /* ✅ Forcer l'horizontal */
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  align-items: flex-end;
+  gap: 3px;
+  height: 50px;
+}
+.histogram-bar {
+  position: relative;
+  flex: 1;
+  min-height: 2px;
+  background: linear-gradient(180deg, var(--accent-cyan), rgba(0, 204, 255, 0.15));
+  border-radius: 3px 3px 0 0;
 }
 
-.topbar-actions .icon-btn {
-  width: 50px;
-  height: 50px;
-  font-size: 1.6rem;
+/* ==========================================================================
+   TABLEAU RÉCAPITULATIF
+   ========================================================================== */
+
+.card-surface {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 22px;
+}
+
+.table-modern {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+.table-modern thead th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.table-modern tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: middle;
+}
+.table-modern tbody tr:last-child td {
+  border-bottom: none;
+}
+.table-modern tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ==========================================================================
+   BADGES
+   ========================================================================== */
+
+.badge-etat {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+.badge-etat.fonctionnel {
+  background: var(--prey-bg);
+  color: var(--prey);
+}
+.badge-etat.dysfonctionnel {
+  background: var(--predator-bg);
+  color: var(--predator);
+}
+
+/* ==========================================================================
+   SCROLLBAR
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }

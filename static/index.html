@@ -42,7 +42,6 @@
             <!-- TOPBAR (3 KPI centrés + recherche/boutons à droite) -->
             <div class="topbar-wrapper">
                 <div class="topbar-left">
-                    <!-- Les 3 KPI centrés -->
                     <div class="kpi-compact" id="kpiPreyCompact">
                         <span class="kpi-compact-label"><i class="fa-solid fa-circle" style="color:#00ff88;"></i> Proies</span>
                         <span class="kpi-compact-value" style="color:#00ff88;" id="kpiPrey">--</span>
@@ -73,34 +72,61 @@
                 </div>
             </div>
 
-            <!-- ZONE SIMULATION (avec horloge HUD en overlay) -->
-            <div class="pixi-container">
-                <div id="pixiCanvasContainer" style="width:100%; height:600px; border-radius:18px; overflow:hidden; background:var(--bg-deep); position:relative;">
-                    <!-- Pixi.js rendra dans ce conteneur -->
-                </div>
-                
-                <!-- HORLOGE HUD (overlay en haut à droite) -->
-                <div id="hudClock">
-                    <div class="hud-clock-circle">
-                        <svg viewBox="0 0 60 60">
-                            <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
-                            <circle cx="30" cy="30" r="26" fill="none" stroke="#00ccff" stroke-width="3" 
-                                    stroke-dasharray="163.36" stroke-dashoffset="163.36" id="clockArc"/>
-                            <circle cx="30" cy="30" r="2" fill="#00ccff"/>
-                            <line x1="30" y1="30" x2="30" y2="10" stroke="#00ccff" stroke-width="2" stroke-linecap="round" id="clockHand"/>
-                        </svg>
+            <!-- ZONE SIMULATION + PANEL GRAPHIQUES (côte à côte) -->
+            <div class="simulation-row">
+                <!-- Simulation (gauche) -->
+                <div class="pixi-container">
+                    <div id="pixiCanvasContainer" style="width:100%; height:600px; border-radius:18px; overflow:hidden; background:var(--bg-deep); position:relative;">
+                        <!-- Pixi.js rendra dans ce conteneur -->
                     </div>
-                    <div class="hud-info">
-                        <div class="hud-cycle">Cycle <span id="hudCycle">0</span></div>
-                        <div class="hud-tick">Tick <span id="hudTick">0</span></div>
+                    
+                    <!-- HORLOGE HUD (overlay en haut à droite) -->
+                    <div id="hudClock">
+                        <div class="hud-clock-circle">
+                            <svg viewBox="0 0 60 60">
+                                <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                                <circle cx="30" cy="30" r="26" fill="none" stroke="#00ccff" stroke-width="3" 
+                                        stroke-dasharray="163.36" stroke-dashoffset="163.36" id="clockArc"/>
+                                <circle cx="30" cy="30" r="2" fill="#00ccff"/>
+                                <line x1="30" y1="30" x2="30" y2="10" stroke="#00ccff" stroke-width="2" stroke-linecap="round" id="clockHand"/>
+                            </svg>
+                        </div>
+                        <div class="hud-info">
+                            <div class="hud-cycle">Cycle <span id="hudCycle">0</span></div>
+                            <div class="hud-tick">Tick <span id="hudTick">0</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Contrôles zoom -->
+                    <div style="position:absolute; bottom:16px; right:24px; display:flex; gap:8px; z-index:10;">
+                        <button id="zoomIn" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-plus"></i></button>
+                        <button id="zoomOut" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-minus"></i></button>
+                        <button id="resetView" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-expand"></i></button>
                     </div>
                 </div>
 
-                <!-- Contrôles zoom -->
-                <div style="position:absolute; bottom:16px; right:24px; display:flex; gap:8px; z-index:10;">
-                    <button id="zoomIn" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-plus"></i></button>
-                    <button id="zoomOut" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-minus"></i></button>
-                    <button id="resetView" class="icon-btn" style="width:36px; height:36px; background:rgba(0,0,0,0.6); border-color:rgba(255,255,255,0.15); color:var(--ink);"><i class="fa-solid fa-expand"></i></button>
+                <!-- Panel des graphiques empilés (droite) -->
+                <div class="chart-card tab-container" id="tabContainer">
+                    <div class="tab-header">
+                        <div class="tab-title">Graphiques</div>
+                        <button class="tab-btn tab-toggle" id="tabToggle" title="Rétracter/Agrandir">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="tab-body">
+                        <!-- Diagramme de phase (en haut) -->
+                        <div class="graph-wrapper">
+                            <div class="graph-label"><i class="fa-solid fa-braille"></i> Diagramme de phase</div>
+                            <div class="d3-chart-container" id="phaseChart"></div>
+                        </div>
+
+                        <!-- Heatmap (en bas) -->
+                        <div class="graph-wrapper">
+                            <div class="graph-label"><i class="fa-solid fa-layer-group"></i> Densité des agents</div>
+                            <div class="d3-chart-container" id="densityHeatmap"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -126,19 +152,7 @@
                 </div>
             </div>
 
-            <!-- Heatmap + Diagramme de phase (2ème ligne de graphiques) -->
-            <div class="charts-row">
-                <div class="chart-card">
-                    <h3><i class="fa-solid fa-layer-group"></i> Densité des agents</h3>
-                    <div class="d3-chart-container" id="densityHeatmap"></div>
-                </div>
-                <div class="chart-card">
-                    <h3><i class="fa-solid fa-braille"></i> Diagramme de phase</h3>
-                    <div class="d3-chart-container" id="phaseChart"></div>
-                </div>
-            </div>
-
-            <!-- Tableau récapitulatif (inchangé) -->
+            <!-- Tableau récapitulatif -->
             <div class="card-surface">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
                     <h3 style="font-size:1rem; font-weight:700; margin:0;">
