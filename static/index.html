@@ -29,6 +29,9 @@
     <script src="https://unpkg.com/tippy.js@6"></script>
     <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/dark.css" />
     
+    <!-- GSAP (animations) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    
     <!-- Notre thème personnalisé -->
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -149,35 +152,6 @@
                         <div class="energy-histogram-label">Distribution de l'énergie des prédateurs</div>
                         <div class="energy-histogram" id="energyHistogram"></div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Tableau récapitulatif -->
-            <div class="card-surface">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
-                    <h3 style="font-size:1rem; font-weight:700; margin:0;">
-                        <i class="fa-solid fa-list"></i> Derniers cycles
-                    </h3>
-                    <div style="display:flex; gap:8px;">
-                        <button class="btn btn-sm btn-outline-secondary" id="btnReset">
-                            <i class="fa-solid fa-rotate"></i> Reset
-                        </button>
-                    </div>
-                </div>
-                <div style="max-height:200px; overflow-y:auto;">
-                    <table class="table-modern" id="historyTable">
-                        <thead>
-                            <tr>
-                                <th># Cycle</th>
-                                <th><i class="fa-solid fa-circle" style="color:#00ff88;"></i> Proies</th>
-                                <th><i class="fa-solid fa-circle" style="color:#ff0044;"></i> Prédateurs</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyBody">
-                            <tr><td colspan="4" class="text-center text-muted">Aucune donnée</td></tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>

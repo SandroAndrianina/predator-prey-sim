@@ -18,12 +18,9 @@ const elements = {
     badgePredators: document.getElementById('badgePredators'),
     badgeCycle: document.getElementById('badgeCycle'),
     agentCount: document.getElementById('agentCount'),
-    historyBody: document.getElementById('historyBody'),
+    historyBody: document.getElementById('historyBody'), // Peut être null
     toggleAutoPlay: document.getElementById('toggleAutoPlay'),
 };
-
-// Variable pour l'angle cumulé de l'horloge (en degrés)
-let clockAngle = 0;
 
 // ============================================================
 // MISE À JOUR DES KPI
@@ -50,54 +47,20 @@ export function updateStatsUI() {
 
     // Graphique
     updateChart();
-    updateTable();
-
-    // Horloge HUD
-    updateClock();
-}
-
-// ============================================================
-// HORLOGE HUD (mise à jour continue)
-// ============================================================
-function updateClock() {
-    const hudCycle = document.getElementById('hudCycle');
-    const hudTick = document.getElementById('hudTick');
-    if (hudCycle) hudCycle.textContent = state.cycle;
-    if (hudTick) hudTick.textContent = state.tick;
-
-    const hand = document.getElementById('clockHand');
-    const arc = document.getElementById('clockArc');
-
-    if (!hand && !arc) return;
-
-    const ticksPerCycle = state.ticks_per_cycle || 10;
     
-    // Calcul de la progression dans le cycle (0 à 1)
-    const progress = (state.tick % ticksPerCycle) / ticksPerCycle;
-    
-    // Angle cumulé : on ajoute la progression au cycle actuel
-    // Chaque cycle = 360°, on ajoute la fraction du cycle en cours
-    const totalDegrees = (state.cycle * 360) + (progress * 360);
-    
-    // Rotation de l'aiguille (angle cumulé)
-    if (hand) {
-        hand.style.transform = `rotate(${totalDegrees}deg)`;
-    }
-
-    // Arc de progression (uniquement pour le cycle en cours)
-    if (arc) {
-        const circumference = 2 * Math.PI * 26; // r=26
-        const offset = circumference * (1 - progress);
-        arc.style.strokeDasharray = circumference;
-        arc.style.strokeDashoffset = offset;
+    // ✅ Tableau récapitulatif (uniquement si l'élément existe)
+    if (elements.historyBody) {
+        updateTable();
     }
 }
 
 // ============================================================
-// MISE À JOUR DU TABLEAU
+// MISE À JOUR DU TABLEAU (protégé)
 // ============================================================
 export function updateTable() {
     const body = elements.historyBody;
+    if (!body) return; // ✅ Sécurité : si l'élément n'existe pas, on sort
+
     const history = state.history;
 
     if (history.length === 0) {
