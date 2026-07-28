@@ -24,7 +24,6 @@ import { fetchDashboard } from './core/dashboard-api.js';
 
 import { 
     updateStatsUI, 
-    updateTable,
     updatePauseButton,
     initEventListeners 
 } from './components/kpi.js';

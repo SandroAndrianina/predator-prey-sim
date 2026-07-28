@@ -4,6 +4,7 @@
 
 import { state } from '../core/api.js';
 import { historyChart, updateChart } from '../core/chart.js';
+import { logCycle } from '../core/log-manager.js';
 
 // ============================================================
 // RÉFÉRENCES DOM
@@ -48,41 +49,41 @@ export function updateStatsUI() {
     // Graphique
     updateChart();
     
-    // ✅ Tableau récapitulatif (uniquement si l'élément existe)
-    if (elements.historyBody) {
-        updateTable();
+    if (state.cycle > 0 && state.cycle !== window._lastLoggedCycle) {
+            window._lastLoggedCycle = state.cycle;
+            logCycle(state.cycle, state.prey, state.predators, state.total);
     }
 }
 
 // ============================================================
 // MISE À JOUR DU TABLEAU (protégé)
 // ============================================================
-export function updateTable() {
-    const body = elements.historyBody;
-    if (!body) return; // ✅ Sécurité : si l'élément n'existe pas, on sort
+// export function updateTable() {
+//     const body = elements.historyBody;
+//     if (!body) return; // ✅ Sécurité : si l'élément n'existe pas, on sort
 
-    const history = state.history;
+//     const history = state.history;
 
-    if (history.length === 0) {
-        body.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Aucune donnée</td></tr>';
-        return;
-    }
+//     if (history.length === 0) {
+//         body.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Aucune donnée</td></tr>';
+//         return;
+//     }
 
-    const start = Math.max(0, history.length - 20);
-    let html = '';
-    for (let i = start; i < history.length; i++) {
-        const [prey, predators] = history[i];
-        html += `
-            <tr>
-                <td>#${i + 1}</td>
-                <td><span style="color:#00ff88;font-weight:700;">${prey}</span></td>
-                <td><span style="color:#ff0044;font-weight:700;">${predators}</span></td>
-                <td>${prey + predators}</td>
-            </tr>
-        `;
-    }
-    body.innerHTML = html;
-}
+//     const start = Math.max(0, history.length - 20);
+//     let html = '';
+//     for (let i = start; i < history.length; i++) {
+//         const [prey, predators] = history[i];
+//         html += `
+//             <tr>
+//                 <td>#${i + 1}</td>
+//                 <td><span style="color:#00ff88;font-weight:700;">${prey}</span></td>
+//                 <td><span style="color:#ff0044;font-weight:700;">${predators}</span></td>
+//                 <td>${prey + predators}</td>
+//             </tr>
+//         `;
+//     }
+//     body.innerHTML = html;
+// }
 
 // ============================================================
 // BOUTON PAUSE

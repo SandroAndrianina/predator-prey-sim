@@ -37,3 +37,12 @@ export function onLog(callback) {
         listeners = listeners.filter(fn => fn !== callback);
     };
 }
+
+export function logCycle(cycle, prey, predators, total) {
+    logEvent('cycle', `📊 Cycle ${cycle} · Proies: ${prey} · Prédateurs: ${predators} · Total: ${total}`, {
+        cycle,
+        prey,
+        predators,
+        total
+    });
+}
