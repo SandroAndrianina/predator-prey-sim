@@ -337,6 +337,7 @@ impl SimulationState {
                     super::agent::Species::Prey => "Prey".to_string(),
                     super::agent::Species::Predator => "Predator".to_string(),
                 },
+              energy: agent.energy,
             })
             .collect()
     }
@@ -362,6 +363,7 @@ pub struct AgentData {
     pub x: f64,
     pub y: f64,
     pub species: String,
+    pub energy: f64,
 }
 
 #[derive(serde::Serialize)]
