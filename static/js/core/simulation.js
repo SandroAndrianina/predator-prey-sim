@@ -1,7 +1,6 @@
 // ============================================================
-// simulation.js - Rendu Pixi.js avec trails (prédateurs),
-// glow proportionnel à l'énergie, et ondes de prédation.
-// Monde : 1000x500 (rectangle), tout visible au zoom initial.
+// simulation.js - Rendu Pixi.js avec glow proportionnel à l'énergie
+// et ondes de prédation. Monde : 1000x500 (rectangle).
 // ============================================================
 
 import { state, previousAgents, currentAgents, lastSnapshotTime } from './api.js';
@@ -14,9 +13,7 @@ const WORLD_H = 500;
 const container = document.getElementById('pixiCanvasContainer');
 
 let app, stage, viewport, backgroundSprite;
-let agentPool = new Map();          // id -> PIXI.Graphics (agents)
-let trailPool = new Map();          // id -> PIXI.Graphics (trails des prédateurs)
-let waveEffects = [];               // ondes actives
+let agentPool = new Map();          // id -> PIXI.Graphics
 let isInitialized = false;
 
 // Gestion du zoom/pan
@@ -65,7 +62,7 @@ function initPixi() {
 }
 
 // ============================================================
-// MISE À JOUR DU VIEWPORT (contain)
+// MISE À JOUR DU VIEWPORT
 // ============================================================
 function updateViewport(containerW, containerH, zoom) {
     const scaleX = containerW / WORLD_W;
@@ -78,7 +75,7 @@ function updateViewport(containerW, containerH, zoom) {
 }
 
 // ============================================================
-// FOND TOPOGRAPHIQUE (inchangé)
+// FOND TOPOGRAPHIQUE
 // ============================================================
 function createTopographicBackground() {
     const texture = PIXI.Texture.from('/static/images/topo.jpg');
@@ -153,7 +150,7 @@ export function resizeCanvas() {
 }
 
 // ============================================================
-// ZOOM / PAN (inchangé)
+// ZOOM / PAN
 // ============================================================
 function setupZoomPan() {
     container.addEventListener('wheel', (e) => {
@@ -212,18 +209,16 @@ function setupZoomPan() {
 let waveList = [];
 
 export function triggerPredationWave(x, y, preyId, predatorId) {
-    // Ajouter une onde
     waveList.push({
         x,
         y,
         radius: 0,
         maxRadius: 80,
         life: 1.0,
-        decay: 0.012, // diminution par frame
+        decay: 0.012,
         id: Date.now() + Math.random(),
     });
 
-    // Log l'événement
     logEvent('predation', `🦊 Prédateur #${predatorId} a mangé Proie #${preyId}`, {
         predatorId,
         preyId,
@@ -236,7 +231,6 @@ function updateWaves() {
     const toRemove = [];
 
     waveList.forEach((wave, index) => {
-        // Mise à jour
         wave.radius += 2.5;
         wave.life -= wave.decay;
 
@@ -245,7 +239,6 @@ function updateWaves() {
             return;
         }
 
-        // Dessiner l'onde (directement dans le viewport)
         const g = new PIXI.Graphics();
         const alpha = wave.life * 0.7;
         g.lineStyle(2, 0xffffff, alpha);
@@ -253,28 +246,26 @@ function updateWaves() {
         g.endFill();
         viewport.addChild(g);
 
-        // Supprimer après un court délai
         setTimeout(() => {
             viewport.removeChild(g);
             g.destroy();
         }, 50);
     });
 
-    // Supprimer les ondes terminées
     toRemove.reverse().forEach(idx => {
         waveList.splice(idx, 1);
     });
 }
 
 // ============================================================
-// DESSIN DES AGENTS AVEC TRAILS ET GLOW
+// DESSIN DES AGENTS (GLOW UNIQUEMENT)
 // ============================================================
 export function drawAgents(agents) {
     if (!app || !viewport) return;
 
     const activeIds = new Set(agents.map(a => a.id));
 
-    // 1. Nettoyer les agents morts
+    // Nettoyer les agents morts
     for (const [id, g] of agentPool) {
         if (!activeIds.has(id)) {
             viewport.removeChild(g);
@@ -282,21 +273,13 @@ export function drawAgents(agents) {
             agentPool.delete(id);
         }
     }
-    for (const [id, g] of trailPool) {
-        if (!activeIds.has(id)) {
-            viewport.removeChild(g);
-            g.destroy();
-            trailPool.delete(id);
-        }
-    }
 
-    // 2. Dessiner les agents
+    // Dessiner les agents
     agents.forEach(agent => {
         const id = agent.id;
         const isPredator = agent.species === 'Predator';
         const energy = agent.energy || 0;
 
-        // Agent graphique
         let g = agentPool.get(id);
         if (!g) {
             g = new PIXI.Graphics();
@@ -309,19 +292,23 @@ export function drawAgents(agents) {
         const radius = isPredator ? 6 : 4;
         const color = isPredator ? 0xff0044 : 0x00ff88;
 
-        // === GLOW proportionnel à l'énergie (prédateurs uniquement) ===
-        let glowIntensity = 0.15;
-        if (isPredator) {
-            // Energie entre 0 et 30 → intensity entre 0.05 et 0.6
-            glowIntensity = 0.05 + (Math.min(energy, 30) / 30) * 0.55;
-        }
-
         g.clear();
 
-        // Halo (glow)
-        g.beginFill(color, glowIntensity * 0.5);
-        g.drawCircle(x, y, radius * (2.5 + glowIntensity * 2));
-        g.endFill();
+        // === GLOW ===
+        let glowIntensity = 0.15;
+        if (isPredator) {
+            // Glow proportionnel à l'énergie (0 → 30)
+            glowIntensity = 0.05 + (Math.min(energy, 30) / 30) * 0.55;
+            // Glow orange pour les prédateurs
+            g.beginFill(0xcc44ff, glowIntensity * 0.4);
+            g.drawCircle(x, y, radius * (3 + glowIntensity * 2.5));
+            g.endFill();
+        } else {
+            // Glow vert pour les proies (faible)
+            g.beginFill(0x00ff88, 0.08);
+            g.drawCircle(x, y, radius * 2.5);
+            g.endFill();
+        }
 
         // Corps principal
         g.beginFill(color, 0.95);
@@ -329,48 +316,17 @@ export function drawAgents(agents) {
         g.endFill();
 
         // Reflet lumineux
-        g.beginFill(0xffffff, 0.25);
+        g.beginFill(0xffffff, 0.2);
         g.drawCircle(x - radius * 0.3, y - radius * 0.3, radius * 0.35);
         g.endFill();
-
-        // === TRAIL (prédateurs uniquement) ===
-        if (isPredator) {
-            let trail = trailPool.get(id);
-            if (!trail) {
-                trail = new PIXI.Graphics();
-                trailPool.set(id, trail);
-                viewport.addChildAt(trail, 0); // sous les agents
-            }
-
-            // Ajouter un point au trail (faible opacité)
-            trail.beginFill(color, 0.12);
-            trail.drawCircle(x, y, radius * 1.2);
-            trail.endFill();
-
-            // Limiter la taille du trail (supprimer les plus anciens)
-            // Chaque trail est un Graphics avec des formes, on ne peut pas
-            // facilement supprimer des formes individuelles sans recréer.
-            // Alternative : on recrée le trail périodiquement.
-            // Pour simplifier, on limite le nombre de formes en recréant
-            // le trail si trop grand.
-            if (trail.children && trail.children.length > 30) {
-                // Sauvegarder les dernières positions
-                const newTrail = new PIXI.Graphics();
-                // On recopie les dernières formes (simplifié)
-                // Solution plus simple : on recrée complètement
-                // le trail à partir des données stockées.
-                // Ici, on laisse le trail s'accumuler et on le nettoie
-                // lors des cycles de nettoyage.
-            }
-        }
     });
 
-    // 3. Mettre à jour les ondes
+    // Mettre à jour les ondes
     updateWaves();
 }
 
 // ============================================================
-// INTERPOLATION (avec énergie pour les prédateurs)
+// INTERPOLATION
 // ============================================================
 function lerp(a, b, t) {
     return a + (b - a) * t;
@@ -389,7 +345,7 @@ export function getInterpolatedAgents() {
                 x: lerp(prev.x, cur.x, t),
                 y: lerp(prev.y, cur.y, t),
                 species: cur.species,
-                energy: cur.energy || 0, // ✅ transmettre l'énergie
+                energy: cur.energy || 0,
             });
         } else {
             result.push({
@@ -425,9 +381,6 @@ export function redrawAgents() {
 // ============================================================
 // EXPOSER triggerPredationWave POUR LE BACKEND
 // ============================================================
-// Cette fonction est appelée depuis le backend lors d'une prédation
-// via un WebSocket ou un endpoint. Pour l'instant, on l'expose
-// globalement pour que le backend puisse l'appeler.
 window.triggerPredationWave = triggerPredationWave;
 
 // ============================================================
