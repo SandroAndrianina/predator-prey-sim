@@ -36,7 +36,7 @@ function initSidebarToggle() {
         // Animation GSAP
         gsap.to(sidebar, {
             width: targetW,
-            duration: 0.4,
+            duration: 0.1,
             ease: 'power2.inOut',
             onUpdate: () => {
                 // Cacher les labels quand rétracté
