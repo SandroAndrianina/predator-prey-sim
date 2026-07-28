@@ -992,3 +992,12 @@ a { text-decoration: none; }
 .log-birth .log-message { color: var(--prey); }
 .log-death .log-message { color: var(--predator); }
 .log-info .log-message { color: var(--accent-cyan); }
+
+/* Dans style.css */
+.log-cycle .log-message {
+  color: var(--accent-cyan);
+}
+.log-cycle .log-time {
+  color: var(--accent-cyan);
+  opacity: 0.7;
+}

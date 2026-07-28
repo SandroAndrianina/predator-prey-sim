@@ -48,6 +48,9 @@ export function updateStatsUI() {
 
     // Graphique
     updateChart();
+
+    // ✅ Appeler l'horloge
+    updateClock();
     
     if (state.cycle > 0 && state.cycle !== window._lastLoggedCycle) {
             window._lastLoggedCycle = state.cycle;
@@ -117,4 +120,40 @@ export function initEventListeners() {
         if (resetBtn) resetBtn.addEventListener('click', resetSimulation);
         if (navReset) navReset.addEventListener('click', resetSimulation);
     });
+}
+
+// ============================================================
+// HORLOGE HUD (mise à jour continue)
+// ============================================================
+function updateClock() {
+    const hudCycle = document.getElementById('hudCycle');
+    const hudTick = document.getElementById('hudTick');
+    if (hudCycle) hudCycle.textContent = state.cycle;
+    if (hudTick) hudTick.textContent = state.tick;
+
+    const hand = document.getElementById('clockHand');
+    const arc = document.getElementById('clockArc');
+
+    if (!hand && !arc) return;
+
+    const ticksPerCycle = state.ticks_per_cycle || 10;
+    
+    // Progression dans le cycle (0 à 1)
+    const progress = (state.tick % ticksPerCycle) / ticksPerCycle;
+    
+    // Angle cumulé : chaque cycle = 360°
+    const totalDegrees = (state.cycle * 360) + (progress * 360);
+    
+    // Aiguille
+    if (hand) {
+        hand.style.transform = `rotate(${totalDegrees}deg)`;
+    }
+
+    // Arc de progression
+    if (arc) {
+        const circumference = 2 * Math.PI * 26;
+        const offset = circumference * (1 - progress);
+        arc.style.strokeDasharray = circumference;
+        arc.style.strokeDashoffset = offset;
+    }
 }

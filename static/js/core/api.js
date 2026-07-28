@@ -26,6 +26,8 @@ export let lastSnapshotTime = performance.now();
 // ============================================================
 // RÉCUPÉRER L'ÉTAT
 // ============================================================
+// core/api.js
+
 export async function fetchState() {
     try {
         const response = await fetch(`${API_URL}/state`);
@@ -42,10 +44,21 @@ export async function fetchState() {
         state.ticks_per_cycle = data.ticks_per_cycle || 10;
         state.agents = data.agents || [];
 
+        // ✅ METTRE À JOUR window.__state POUR LES LOGS
+        window.__state = {
+            cycle: state.cycle,
+            tick: state.tick
+        };
+
         previousAgents = currentAgents;
         currentAgents = new Map();
         (data.agents || []).forEach(a => {
-            currentAgents.set(a.id, { x: a.x, y: a.y, species: a.species });
+            currentAgents.set(a.id, { 
+                x: a.x, 
+                y: a.y, 
+                species: a.species,
+                energy: a.energy || 0
+            });
         });
         lastSnapshotTime = performance.now();
 
