@@ -34,8 +34,20 @@
     
     <!-- Notre thème personnalisé -->
     <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- Intro styles -->
+    <link rel="stylesheet" href="/static/css/intro.css">
 </head>
 <body>
+    <!-- ===== INTRO OVERLAY ===== -->
+    <div id="intro-overlay">
+        <video id="intro-video" src="/static/video/signature.mp4" preload="auto" playsinline></video>
+        <div id="intro-progress-track"><div id="intro-progress-fill"></div></div>
+        <button id="intro-start-btn">START</button>
+        <div id="intro-sub">// analyse . execute . share</div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
     <div class="app-shell">
         <!-- SIDEBAR (chargé dynamiquement) -->
         <div id="sidebar-container"></div>
@@ -118,13 +130,10 @@
                     </div>
 
                     <div class="tab-body">
-                        <!-- Diagramme de phase (en haut) -->
                         <div class="graph-wrapper">
                             <div class="graph-label"><i class="fa-solid fa-braille"></i> Diagramme de phase</div>
                             <div class="d3-chart-container" id="phaseChart"></div>
                         </div>
-
-                        <!-- Heatmap (en bas) -->
                         <div class="graph-wrapper">
                             <div class="graph-label"><i class="fa-solid fa-layer-group"></i> Densité des agents</div>
                             <div class="d3-chart-container" id="densityHeatmap"></div>
@@ -135,19 +144,15 @@
 
             <!-- CHARTS ROW (graphique d'évolution + KPI avancés) -->
             <div class="charts-row">
-                <!-- Évolution Chart (gauche) -->
                 <div class="chart-card">
                     <h3><i class="fa-solid fa-chart-line"></i> Évolution de la population</h3>
                     <canvas id="historyChart"></canvas>
                 </div>
-                <!-- KPI Avancés + Histogramme (droite) -->
                 <div class="card-surface" id="advancedKpiPanel">
                     <h3 style="font-size:1rem; font-weight:700; margin:0 0 16px;">
                         <i class="fa-solid fa-gauge-high"></i> KPI avancés
                     </h3>
-                    <div class="kpi-adv-grid" id="advancedKpiGrid">
-                        <!-- Rempli dynamiquement par components/dashboard.js -->
-                    </div>
+                    <div class="kpi-adv-grid" id="advancedKpiGrid"></div>
                     <div class="energy-histogram-block">
                         <div class="energy-histogram-label">Distribution de l'énergie des prédateurs</div>
                         <div class="energy-histogram" id="energyHistogram"></div>

@@ -1,3 +1,7 @@
+// ============================================================
+// main.js — Point d'entrée avec intro signature
+// ============================================================
+
 import { 
     state, 
     fetchState, 
@@ -40,26 +44,35 @@ import { initDensityHeatmap, updateDensityHeatmap } from './core/density-heatmap
 import { initConfigModal } from './components/config-modal.js';
 import { loadSidebar } from './components/sidebar.js';
 
-// ✅ Importer UNIQUEMENT ce dont on a besoin
 import { initTabs, isTabCollapsed } from './components/tabs.js';
+
+// ✅ Import de l'intro
+import { initIntro } from './intro.js';
+
+// ============================================================
+// main.js — Point d'entrée avec intro signature
+// ============================================================
+
+// ... (tous les imports inchangés)
 
 const POLL_INTERVAL_MS = 100;
 const DASHBOARD_POLL_INTERVAL_MS = 10000;
+
+// ============================================================
+// DASHBOARD (démarre après l'intro)
+// ============================================================
 
 async function refreshDashboard() {
     await fetchDashboard();
     updateAdvancedKpis();
     updateEnergyHistogram();
-    
-    // ✅ Les deux graphiques sont toujours visibles (empilés)
-    // On ne met à jour que si le panneau n'est pas rétracté
     if (!isTabCollapsed()) {
         updatePhaseChart();
         updateDensityHeatmap();
     }
 }
 
-async function init() {
+async function startDashboard() {
     // 1. Canvas
     resizeCanvas();
     
@@ -81,11 +94,8 @@ async function init() {
     // 6. Dashboard
     buildAdvancedKpiCards();
     
-    // ✅ Initialiser les graphiques (Phase et Densité)
     initPhaseChart();
     initDensityHeatmap();
-    
-    // ✅ Initialiser les onglets (panneau rétractable)
     initTabs();
     
     await refreshDashboard();
@@ -100,8 +110,6 @@ async function init() {
         await fetchState();
         updateStatsUI();
         updatePauseButton();
-        
-        // ✅ Mise à jour des deux graphiques si le panneau est ouvert
         if (!isTabCollapsed()) {
             updatePhaseChart();
             updateDensityHeatmap();
@@ -113,7 +121,25 @@ async function init() {
     renderLoop();
 }
 
-// LANCEMENT
+// ============================================================
+// INIT — Lance l'intro puis le dashboard
+// ============================================================
+
+function init() {
+    initIntro(() => {
+        // ✅ Forcer le redimensionnement APRÈS l'intro
+        setTimeout(() => {
+            resizeCanvas();
+            // Redessiner les agents
+            if (state.agents && state.agents.length > 0) {
+                drawAgents(getInterpolatedAgents());
+            }
+        }, 100);
+        
+        startDashboard();
+    });
+}
+
 document.addEventListener('DOMContentLoaded', init);
 window.addEventListener('resize', () => {
     resizeCanvas();
