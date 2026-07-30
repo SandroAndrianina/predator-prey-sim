@@ -2,8 +2,6 @@
 // sidebar.js - Sidebar rétractable (GSAP)
 // ============================================================
 
-import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm';
-
 let isCollapsed = false;
 const SIDEBAR_W = 240;
 const COLLAPSED_W = 60;

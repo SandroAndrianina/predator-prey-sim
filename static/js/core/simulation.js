@@ -51,7 +51,6 @@ function initPixi() {
     stage.addChild(viewport);
 
     createTopographicBackground();
-    window.addEventListener('resize', resizeCanvas);
     setupZoomPan();
 
     isInitialized = true;
